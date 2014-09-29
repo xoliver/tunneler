@@ -1,7 +1,7 @@
 from pprint import pprint
 from subprocess import call
 
-from settings import TUNNELS
+from settings import DEFAULT_USER, TUNNELS
 
 START_COMMAND = \
     'ssh -f -N -L{local_port}:localhost:{remote_port} {user}@{server}'
@@ -89,7 +89,7 @@ class Tunneler(object):
             command = START_COMMAND.format(
                 local_port=data['local_port'],
                 remote_port=data['remote_port'],
-                user=data['user'],
+                user=data['user'] if 'user' in data else DEFAULT_USER,
                 server=data['server']
             )
             if call(command.split()) == 0:
