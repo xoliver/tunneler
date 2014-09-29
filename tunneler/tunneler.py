@@ -16,7 +16,21 @@ class Tunneler(object):
         if command == 'list':
             pprint(self.list_tunnels())
         elif command == 'start':
-            print self.start_tunnel(parameters[0])
+            if not parameters:
+                active = self.list_configured_tunnels(filter_active=True)
+                inactive = self.list_configured_tunnels(filter_active=False)
+                print 'Can be started: ', inactive
+                print 'Already active: ', active
+            else:
+                print self.start_tunnel(parameters[0])
+        elif command == 'stop':
+            if not parameters:
+                active = self.list_configured_tunnels(filter_active=True)
+                inactive = self.list_configured_tunnels(filter_active=False)
+                print 'Can be stopped: ', active
+                print 'Already stopped: ', inactive
+            else:
+                print self.stop_tunnel(parameters[0])
         else:
             raise NameError()
 
@@ -24,13 +38,35 @@ class Tunneler(object):
         for (name, tunnel) in TUNNELS.iteritems():
             if tunnel['server'] == server and tunnel['remote_port'] == port:
                 return (name, tunnel)
-        raise LookupError
+        raise LookupError()
 
-    def _is_tunnel_active(self, name):
-        for tunnel_description in self.list_tunnels():
-            if name in tunnel_description:
-                return True
-        return False
+    def list_configured_tunnels(self, filter_active=None):
+        keys = TUNNELS.keys()
+        if filter_active is None:
+            return keys
+        elif filter_active:
+            return [key for key in keys if self.is_tunnel_active(key)]
+        else:
+            return [key for key in keys if not self.is_tunnel_active(key)]
+
+    def is_tunnel_active(self, name):
+        try:
+            self.get_tunnel(name)
+        except NameError:
+            return False
+        else:
+            return True
+
+    def get_tunnel(self, name):
+        for tunnel in self.process_helper.get_active_tunnels():
+            try:
+                tunnel_name, setting = self._find_tunnel_setting(
+                    tunnel.server, tunnel.to_port)
+                if tunnel_name == name:
+                    return tunnel
+            except LookupError:
+                pass
+        raise NameError()
 
     def list_tunnels(self):
         tunnels = []
@@ -47,7 +83,7 @@ class Tunneler(object):
         if name in TUNNELS:
             data = TUNNELS[name]
 
-            if self._is_tunnel_active(name):
+            if self.is_tunnel_active(name):
                 return 'Tunnel already active'
 
             command = START_COMMAND.format(
@@ -63,3 +99,6 @@ class Tunneler(object):
 
         else:
             return 'Tunnel settings not found!'
+
+    def stop_tunnel(self, name):
+        raise NotImplementedError()
