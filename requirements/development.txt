@@ -1,0 +1,4 @@
+-r testing.txt
+
+ipdb==0.8
+ipython==2.2
