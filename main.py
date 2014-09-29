@@ -1,3 +1,5 @@
+#!env python
+
 import sys
 
 from tunneler.tunneler import Tunneler
