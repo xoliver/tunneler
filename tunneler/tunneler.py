@@ -31,6 +31,9 @@ class Tunneler(object):
             return [key for key in keys if not self.is_tunnel_active(key)]
 
     def is_tunnel_active(self, name):
+        if name not in TUNNELS:
+            raise NameError()
+
         try:
             self.get_tunnel(name)
         except NameError:
