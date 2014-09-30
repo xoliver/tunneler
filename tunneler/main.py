@@ -13,14 +13,20 @@ def cli(verbose):
 
 
 @cli.command(short_help='Start a tunnel')
-@click.argument('name', default=None)
+@click.argument('name')
 def start(name):
     print tunneler.start_tunnel(name)
 
 
 @cli.command(short_help='Show active tunnels')
 def show():
-    print tunneler.list_tunnels()
+    if tunneler.verbose:
+        print tunneler.list_tunnels()
+    else:
+        active = tunneler.get_configured_tunnels(filter_active=True)
+        inactive = tunneler.get_configured_tunnels(filter_active=False)
+        print 'Active', active
+        print 'Inactive', inactive
 
 if __name__ == '__main__':
     cli(False)

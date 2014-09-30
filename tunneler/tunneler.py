@@ -15,28 +15,6 @@ class Tunneler(object):
     def set_verbose(self, verbose):
         self.verbose = verbose
 
-    def execute(self, command, parameters):
-        if command == 'list':
-            pprint(self.list_tunnels())
-        elif command == 'start':
-            if not parameters:
-                active = self.get_configured_tunnels(filter_active=True)
-                inactive = self.get_configured_tunnels(filter_active=False)
-                print 'Can be started: ', inactive
-                print 'Already active: ', active
-            else:
-                print self.start_tunnel(parameters[0])
-        elif command == 'stop':
-            if not parameters:
-                active = self.get_configured_tunnels(filter_active=True)
-                inactive = self.get_configured_tunnels(filter_active=False)
-                print 'Can be stopped: ', active
-                print 'Already stopped: ', inactive
-            else:
-                print self.stop_tunnel(parameters[0])
-        else:
-            raise NameError()
-
     def _find_tunnel_setting(self, server, port):
         for (name, tunnel) in TUNNELS.iteritems():
             if tunnel['server'] == server and tunnel['remote_port'] == port:
