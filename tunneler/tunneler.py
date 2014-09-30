@@ -17,16 +17,16 @@ class Tunneler(object):
             pprint(self.list_tunnels())
         elif command == 'start':
             if not parameters:
-                active = self.list_configured_tunnels(filter_active=True)
-                inactive = self.list_configured_tunnels(filter_active=False)
+                active = self.get_configured_tunnels(filter_active=True)
+                inactive = self.get_configured_tunnels(filter_active=False)
                 print 'Can be started: ', inactive
                 print 'Already active: ', active
             else:
                 print self.start_tunnel(parameters[0])
         elif command == 'stop':
             if not parameters:
-                active = self.list_configured_tunnels(filter_active=True)
-                inactive = self.list_configured_tunnels(filter_active=False)
+                active = self.get_configured_tunnels(filter_active=True)
+                inactive = self.get_configured_tunnels(filter_active=False)
                 print 'Can be stopped: ', active
                 print 'Already stopped: ', inactive
             else:
@@ -40,7 +40,7 @@ class Tunneler(object):
                 return (name, tunnel)
         raise LookupError()
 
-    def list_configured_tunnels(self, filter_active=None):
+    def get_configured_tunnels(self, filter_active=None):
         keys = TUNNELS.keys()
         if filter_active is None:
             return keys
@@ -93,7 +93,7 @@ class Tunneler(object):
                 server=data['server']
             )
             if call(command.split()) == 0:
-                return 'Tunnel started'
+                return 'Tunnel started in port {}'.format(data['local_port'])
             else:
                 return 'Tunnel NOT started'
 
