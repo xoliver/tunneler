@@ -8,9 +8,12 @@ START_COMMAND = \
 
 
 class Tunneler(object):
-    def __init__(self, process_helper, config=None):
+    def __init__(self, process_helper, verbose=False):
         self.process_helper = process_helper
-        # self.load_config(config)
+        self.verbose = verbose
+
+    def set_verbose(self, verbose):
+        self.verbose = verbose
 
     def execute(self, command, parameters):
         if command == 'list':
