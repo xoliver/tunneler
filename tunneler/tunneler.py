@@ -1,4 +1,3 @@
-from pprint import pprint
 from subprocess import call
 
 from settings import DEFAULT_USER, TUNNELS
@@ -52,7 +51,7 @@ class Tunneler(object):
                 pass
         raise NameError()
 
-    def list_tunnels(self):
+    def get_active_tunnels(self):
         tunnels = []
         for tunnel in self.process_helper.get_active_tunnels():
             try:

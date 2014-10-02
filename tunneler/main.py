@@ -33,12 +33,14 @@ def start(name):
 @cli.command(short_help='Show active tunnels')
 def show():
     if tunneler.verbose:
-        print tunneler.list_tunnels()
+        active = tunneler.get_active_tunnels()
     else:
-        active = tunneler.get_configured_tunnels(filter_active=True)
-        inactive = tunneler.get_configured_tunnels(filter_active=False)
-        print 'Active', active
-        print 'Inactive', inactive
+        active = sorted(tunneler.get_configured_tunnels(filter_active=True))
+
+    print 'Active', active
+    inactive = sorted(tunneler.get_configured_tunnels(filter_active=False))
+    print 'Inactive', inactive
+
 
 if __name__ == '__main__':
     cli(False)
