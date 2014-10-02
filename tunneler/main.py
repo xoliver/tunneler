@@ -39,13 +39,16 @@ def stop(name):
 @cli.command(short_help='Show active tunnels')
 def show():
     if tunneler.verbose:
-        active = tunneler.get_active_tunnels()
+        active = [
+            '{}: {}'.format(name, data)
+            for (name, data) in tunneler.get_active_tunnels()
+        ]
     else:
-        active = sorted(tunneler.get_configured_tunnels(filter_active=True))
+        active = tunneler.get_configured_tunnels(filter_active=True)
 
-    print 'Active:\t\t', ' '.join(active)
-    inactive = sorted(tunneler.get_configured_tunnels(filter_active=False))
-    print 'Inactive:\t', ' '.join(inactive)
+    print 'Active:\t\t', ' '.join(sorted(active))
+    inactive = tunneler.get_configured_tunnels(filter_active=False)
+    print 'Inactive:\t', ' '.join(sorted(inactive))
 
 
 if __name__ == '__main__':

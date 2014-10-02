@@ -52,9 +52,13 @@ class Tunneler(object):
             try:
                 name, data = self._find_tunnel_setting(
                     tunnel.server, tunnel.to_port)
-                tunnels.append('{} : {}'.format(name, data))
+                tunnels.append(
+                    (name, data)
+                )
             except LookupError:
-                tunnels.append('Unknown: {}'.format(tunnel))
+                tunnels.append(
+                    ('Unknown', {'found': '{}'.format(tunnel)})
+                )
         return tunnels
 
     def start_tunnel(self, name):
