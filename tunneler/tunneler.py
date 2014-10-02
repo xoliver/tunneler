@@ -1,9 +1,4 @@
-from subprocess import call
-
 from settings import DEFAULT_USER, TUNNELS
-
-START_COMMAND = \
-    'ssh -f -N -L{local_port}:localhost:{remote_port} {user}@{server}'
 
 
 class Tunneler(object):
@@ -69,13 +64,14 @@ class Tunneler(object):
             if self.is_tunnel_active(name):
                 return 'Tunnel already active'
 
-            command = START_COMMAND.format(
-                local_port=data['local_port'],
-                remote_port=data['remote_port'],
+            success = self.process_helper.start_tunnel(
                 user=data['user'] if 'user' in data else DEFAULT_USER,
-                server=data['server']
+                server=data['server'],
+                local_port=data['local_port'],
+                remote_port=data['remote_port']
             )
-            if call(command.split()) == 0:
+
+            if success:
                 return 'Tunnel started in port {}'.format(data['local_port'])
             else:
                 return 'Tunnel NOT started'

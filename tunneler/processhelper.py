@@ -1,5 +1,6 @@
 import re
 from collections import namedtuple
+from subprocess import call
 
 import psutil
 
@@ -12,6 +13,9 @@ Tunnel = namedtuple(
 pid_matcher = re.compile(r'^(\d+)-')
 port_matcher = re.compile(r'.*-L(\d+):localhost:(\d+).*')
 login_matcher = re.compile(r'.* ([^@]+)@([^ ]+).*')
+
+START_COMMAND = \
+    'ssh -f -N -L{local_port}:localhost:{remote_port} {user}@{server}'
 
 
 class ProcessHelper(object):
@@ -35,3 +39,12 @@ class ProcessHelper(object):
         (user, server) = login_matcher.match(line).groups()
 
         return int(from_port), int(to_port), user, server
+
+    def start_tunnel(self, user, server, local_port, remote_port):
+        command = START_COMMAND.format(
+            user=user,
+            server=server,
+            local_port=local_port,
+            remote_port=remote_port
+        )
+        return call(command.split()) == 0

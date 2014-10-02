@@ -37,9 +37,9 @@ def show():
     else:
         active = sorted(tunneler.get_configured_tunnels(filter_active=True))
 
-    print 'Active', active
+    print 'Active:\t\t', ' '.join(active)
     inactive = sorted(tunneler.get_configured_tunnels(filter_active=False))
-    print 'Inactive', inactive
+    print 'Inactive:\t', ' '.join(inactive)
 
 
 if __name__ == '__main__':
