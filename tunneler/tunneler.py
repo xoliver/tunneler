@@ -98,3 +98,12 @@ class Tunneler(object):
 
         else:
             return 'Tunnel settings not found!'
+
+    def stop_all_tunnels(self):
+        results = ['Stopping all active tunnels']
+        for name, tunnel in self.get_active_tunnels():
+            # This is not the best approach since we have its pid already
+            # but dirty will do right now
+            results.append(self.stop_tunnel(name) + ': ' + name)
+
+        return '\n'.join(results)

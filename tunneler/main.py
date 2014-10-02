@@ -33,7 +33,10 @@ def start(name):
 @cli.command(short_help='Stop a tunnel')
 @click.argument('name')
 def stop(name):
-    print tunneler.stop_tunnel(name)
+    if name.lower() == 'all':
+        print tunneler.stop_all_tunnels()
+    else:
+        print tunneler.stop_tunnel(name)
 
 
 @cli.command(short_help='Show active tunnels')
