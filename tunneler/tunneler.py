@@ -80,4 +80,17 @@ class Tunneler(object):
             return 'Tunnel settings not found!'
 
     def stop_tunnel(self, name):
-        raise NotImplementedError()
+        if name in TUNNELS:
+            try:
+                tunnel = self.get_tunnel(name)
+            except NameError:
+                return 'Tunnel not active'
+
+            success = self.process_helper.stop_tunnel(tunnel)
+            if success:
+                return 'Tunnel stopped'
+            else:
+                return 'Problem stopping tunnel'
+
+        else:
+            return 'Tunnel settings not found!'

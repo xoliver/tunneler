@@ -7,7 +7,7 @@ import psutil
 
 Tunnel = namedtuple(
     'Tunnel',
-    ['pid', 'from_port', 'to_port', 'user', 'server']
+    ['process', 'from_port', 'to_port', 'user', 'server']
 )
 
 pid_matcher = re.compile(r'^(\d+)-')
@@ -48,3 +48,10 @@ class ProcessHelper(object):
             remote_port=remote_port
         )
         return call(command.split()) == 0
+
+    def stop_tunnel(self, tunnel):
+        try:
+            tunnel.process.terminate()
+            return True
+        except:
+            return False
