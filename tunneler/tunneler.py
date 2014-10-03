@@ -1,20 +1,20 @@
 class Tunneler(object):
-    def __init__(self, process_helper, settings, verbose=False):
+    def __init__(self, process_helper, config, verbose=False):
         self.process_helper = process_helper
-        self.settings = settings
+        self.config = config
         self.verbose = verbose
 
     def set_verbose(self, verbose):
         self.verbose = verbose
 
     def _find_tunnel_setting(self, server, port):
-        for (name, tunnel) in self.settings.iteritems():
+        for (name, tunnel) in self.config.tunnels.iteritems():
             if tunnel['server'] == server and tunnel['remote_port'] == port:
                 return (name, tunnel)
         raise LookupError()
 
     def get_configured_tunnels(self, filter_active=None):
-        keys = self.settings.keys()
+        keys = self.config.tunnels.keys()
         if filter_active is None:
             return keys
         elif filter_active:
@@ -23,7 +23,7 @@ class Tunneler(object):
             return [key for key in keys if not self.is_tunnel_active(key)]
 
     def is_tunnel_active(self, name):
-        if name not in self.settings:
+        if name not in self.config.tunnels:
             raise NameError()
 
         try:
@@ -61,14 +61,14 @@ class Tunneler(object):
         return tunnels
 
     def start_tunnel(self, name):
-        if name in self.settings:
-            data = self.settings[name]
+        if name in self.config.tunnels:
+            data = self.config.tunnels[name]
 
             if self.is_tunnel_active(name):
                 return 'Tunnel already active'
 
             user_name = data['user'] if 'user' in data \
-                else self.settings.get('common', {}).get('default_user', 'XXX')
+                else self.config.common['default_user']
 
             success = self.process_helper.start_tunnel(
                 user=user_name,
@@ -83,10 +83,10 @@ class Tunneler(object):
                 return 'Tunnel NOT started'
 
         else:
-            return 'Tunnel settings not found!'
+            return 'Tunnel config not found!'
 
     def stop_tunnel(self, name):
-        if name in self.settings:
+        if name in self.config.tunnels:
             try:
                 tunnel = self.get_tunnel(name)
             except NameError:
@@ -99,7 +99,7 @@ class Tunneler(object):
                 return 'Problem stopping tunnel'
 
         else:
-            return 'Tunnel settings not found!'
+            return 'Tunnel config not found!'
 
     def stop_all_tunnels(self):
         results = ['Stopping all active tunnels']

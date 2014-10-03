@@ -1,25 +1,11 @@
-import ConfigParser
 from os.path import expanduser, join
 
 import click
 
+from config import TunnelerConfigParser
 from tunneler import Tunneler
 from process import ProcessHelper
 
-
-class DictConfigParser(ConfigParser.ConfigParser):
-
-    """
-    Custom ConfigParser that allows the retrieval of config as a dictionary.
-    From: http://stackoverflow.com/questions/3220670/read-all-the-contents-in-ini-file-into-dictionary-with-python/3220891#3220891
-    """  # NOQA
-
-    def as_dict(self):
-        d = dict(self._sections)
-        for k in d:
-            d[k] = dict(self._defaults, **d[k])
-            d[k].pop('__name__', None)
-        return d
 
 tunneler = None
 
@@ -29,13 +15,13 @@ tunneler = None
 def cli(verbose):
     # Load settings first
     config_file = join(expanduser('~'), '.tunneler.cfg')
-    config_parser = DictConfigParser()
+    config_parser = TunnelerConfigParser()
     if not config_parser.read(config_file):
         print 'Could not find valid ~/.tunneler.cfg! - Aborting'
         return
 
     global tunneler
-    tunneler = Tunneler(ProcessHelper(), config_parser.as_dict())
+    tunneler = Tunneler(ProcessHelper(), config_parser.get_config())
     tunneler.set_verbose(verbose)
 
 
