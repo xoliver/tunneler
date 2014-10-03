@@ -1,22 +1,20 @@
-from settings import DEFAULT_USER, TUNNELS
-
-
 class Tunneler(object):
-    def __init__(self, process_helper, verbose=False):
+    def __init__(self, process_helper, settings, verbose=False):
         self.process_helper = process_helper
+        self.settings = settings
         self.verbose = verbose
 
     def set_verbose(self, verbose):
         self.verbose = verbose
 
     def _find_tunnel_setting(self, server, port):
-        for (name, tunnel) in TUNNELS.iteritems():
+        for (name, tunnel) in self.settings.iteritems():
             if tunnel['server'] == server and tunnel['remote_port'] == port:
                 return (name, tunnel)
         raise LookupError()
 
     def get_configured_tunnels(self, filter_active=None):
-        keys = TUNNELS.keys()
+        keys = self.settings.keys()
         if filter_active is None:
             return keys
         elif filter_active:
@@ -25,7 +23,7 @@ class Tunneler(object):
             return [key for key in keys if not self.is_tunnel_active(key)]
 
     def is_tunnel_active(self, name):
-        if name not in TUNNELS:
+        if name not in self.settings:
             raise NameError()
 
         try:
@@ -63,14 +61,17 @@ class Tunneler(object):
         return tunnels
 
     def start_tunnel(self, name):
-        if name in TUNNELS:
-            data = TUNNELS[name]
+        if name in self.settings:
+            data = self.settings[name]
 
             if self.is_tunnel_active(name):
                 return 'Tunnel already active'
 
+            user_name = data['user'] if 'user' in data \
+                else self.settings.get('common', {}).get('default_user', 'XXX')
+
             success = self.process_helper.start_tunnel(
-                user=data['user'] if 'user' in data else DEFAULT_USER,
+                user=user_name,
                 server=data['server'],
                 local_port=data['local_port'],
                 remote_port=data['remote_port']
@@ -85,7 +86,7 @@ class Tunneler(object):
             return 'Tunnel settings not found!'
 
     def stop_tunnel(self, name):
-        if name in TUNNELS:
+        if name in self.settings:
             try:
                 tunnel = self.get_tunnel(name)
             except NameError:
