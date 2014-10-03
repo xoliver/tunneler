@@ -43,7 +43,7 @@ def stop(name):
 def show():
     if tunneler.verbose:
         active = [
-            '{}: {}'.format(name, data)
+            '{}({})'.format(name, data['local_port'])
             for (name, data) in tunneler.get_active_tunnels()
         ]
     else:

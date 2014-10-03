@@ -1,14 +1,9 @@
 import re
-from collections import namedtuple
 from subprocess import call
 
 import psutil
 
-
-Tunnel = namedtuple(
-    'Tunnel',
-    ['process', 'from_port', 'to_port', 'user', 'server']
-)
+from models import Tunnel
 
 pid_matcher = re.compile(r'^(\d+)-')
 port_matcher = re.compile(r'.*-L(\d+):localhost:(\d+).*')
@@ -25,20 +20,20 @@ class ProcessHelper(object):
                 if process.name() == 'ssh' and '-N' in process.cmdline():
                     try:
                         command = ' '.join(process.cmdline())
-                        from_port, to_port, user, server = \
+                        local_port, remote_port, user, server = \
                             self.extract_tunnel_info(command)
                     except AttributeError:
                         pass
                     else:
-                        yield Tunnel(process, from_port, to_port, user, server)
+                        yield Tunnel('unidentified', process, local_port, remote_port, user, server)  # NOQA
             except psutil.AccessDenied:
                 pass
 
     def extract_tunnel_info(self, line):
-        (from_port, to_port) = port_matcher.match(line).groups()
+        (local_port, remote_port) = port_matcher.match(line).groups()
         (user, server) = login_matcher.match(line).groups()
 
-        return int(from_port), int(to_port), user, server
+        return int(local_port), int(remote_port), user, server
 
     def start_tunnel(self, user, server, local_port, remote_port):
         command = START_COMMAND.format(

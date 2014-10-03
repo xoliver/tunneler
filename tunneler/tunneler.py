@@ -39,8 +39,9 @@ class Tunneler(object):
         for tunnel in self.process_helper.get_active_tunnels():
             try:
                 tunnel_name, setting = self._find_tunnel_setting(
-                    tunnel.server, tunnel.to_port)
+                    tunnel.server, tunnel.remote_port)
                 if tunnel_name == name:
+                    tunnel.name = name
                     return tunnel
             except LookupError:
                 pass
@@ -51,7 +52,7 @@ class Tunneler(object):
         for tunnel in self.process_helper.get_active_tunnels():
             try:
                 name, data = self._find_tunnel_setting(
-                    tunnel.server, tunnel.to_port)
+                    tunnel.server, tunnel.remote_port)
                 tunnels.append(
                     (name, data)
                 )
