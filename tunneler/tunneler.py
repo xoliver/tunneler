@@ -1,3 +1,12 @@
+def check_tunnel_exists(f):
+    def wrap(obj, name):
+        if name not in obj.config.tunnels:
+            return 'Tunnel config not found!'
+        else:
+            return f(obj, name)
+    return wrap
+
+
 class Tunneler(object):
     def __init__(self, process_helper, config, verbose=False):
         self.process_helper = process_helper
@@ -22,10 +31,8 @@ class Tunneler(object):
         else:
             return [key for key in keys if not self.is_tunnel_active(key)]
 
+    @check_tunnel_exists
     def is_tunnel_active(self, name):
-        if name not in self.config.tunnels:
-            raise NameError()
-
         try:
             self.get_tunnel(name)
         except NameError:
@@ -60,46 +67,40 @@ class Tunneler(object):
                 )
         return tunnels
 
+    @check_tunnel_exists
     def start_tunnel(self, name):
-        if name in self.config.tunnels:
-            data = self.config.tunnels[name]
+        data = self.config.tunnels[name]
 
-            if self.is_tunnel_active(name):
-                return 'Tunnel already active'
+        if self.is_tunnel_active(name):
+            return 'Tunnel already active'
 
-            user_name = data['user'] if 'user' in data \
-                else self.config.common['default_user']
+        user_name = data['user'] if 'user' in data \
+            else self.config.common['default_user']
 
-            success = self.process_helper.start_tunnel(
-                user=user_name,
-                server=data['server'],
-                local_port=data['local_port'],
-                remote_port=data['remote_port']
-            )
+        success = self.process_helper.start_tunnel(
+            user=user_name,
+            server=data['server'],
+            local_port=data['local_port'],
+            remote_port=data['remote_port']
+        )
 
-            if success:
-                return 'Tunnel started in port {}'.format(data['local_port'])
-            else:
-                return 'Tunnel NOT started'
-
+        if success:
+            return 'Tunnel started in port {}'.format(data['local_port'])
         else:
-            return 'Tunnel config not found!'
+            return 'Tunnel NOT started'
 
+    @check_tunnel_exists
     def stop_tunnel(self, name):
-        if name in self.config.tunnels:
-            try:
-                tunnel = self.get_tunnel(name)
-            except NameError:
-                return 'Tunnel not active'
+        try:
+            tunnel = self.get_tunnel(name)
+        except NameError:
+            return 'Tunnel not active'
 
-            success = self.process_helper.stop_tunnel(tunnel)
-            if success:
-                return 'Tunnel stopped'
-            else:
-                return 'Problem stopping tunnel'
-
+        success = self.process_helper.stop_tunnel(tunnel)
+        if success:
+            return 'Tunnel stopped'
         else:
-            return 'Tunnel config not found!'
+            return 'Problem stopping tunnel'
 
     def stop_all_tunnels(self):
         results = ['Stopping all active tunnels']
