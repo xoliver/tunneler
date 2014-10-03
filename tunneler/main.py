@@ -4,7 +4,7 @@ from os.path import expanduser, join
 import click
 
 from tunneler import Tunneler
-from processhelper import ProcessHelper
+from process import ProcessHelper
 
 
 class DictConfigParser(ConfigParser.ConfigParser):
