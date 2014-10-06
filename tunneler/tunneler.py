@@ -1,7 +1,7 @@
 def check_tunnel_exists(f):
     def wrap(obj, name):
         if name not in obj.config.tunnels:
-            return 'Tunnel config not found!'
+            return 'Tunnel config not found: {}'.format(name)
         else:
             return f(obj, name)
     return wrap

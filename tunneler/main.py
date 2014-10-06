@@ -37,19 +37,21 @@ def check(name):
         print 'Unknown tunnel'
 
 
-@cli.command(short_help='Start a tunnel')
-@click.argument('name')
-def start(name):
-    print tunneler.start_tunnel(name)
+@cli.command(short_help='Start one or more tunnels')
+@click.argument('names', nargs=-1)
+def start(names):
+    for name in names:
+        print tunneler.start_tunnel(name)
 
 
-@cli.command(short_help='Stop a tunnel')
-@click.argument('name')
-def stop(name):
-    if name.lower() == 'all':
+@cli.command(short_help='Stop one or more or ALL tunnels')
+@click.argument('names')
+def stop(names):
+    if len(names) == 1 and names[0].lower() == 'all':
         print tunneler.stop_all_tunnels()
     else:
-        print tunneler.stop_tunnel(name)
+        for name in names:
+            print tunneler.stop_tunnel(name)
 
 
 @cli.command(short_help='Show active tunnels')
