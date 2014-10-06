@@ -40,14 +40,19 @@ def check(name):
 @cli.command(short_help='Start one or more tunnels')
 @click.argument('names', nargs=-1)
 def start(names):
-    for name in names:
-        print tunneler.start_tunnel(name)
+    if not names:
+        print_inactive_tunnels()
+    else:
+        for name in names:
+            print tunneler.start_tunnel(name)
 
 
 @cli.command(short_help='Stop one or more or ALL tunnels')
-@click.argument('names')
+@click.argument('names', nargs=-1)
 def stop(names):
-    if len(names) == 1 and names[0].lower() == 'all':
+    if not names:
+        print_active_tunnels()
+    elif len(names) == 1 and names[0].lower() == 'all':
         print tunneler.stop_all_tunnels()
     else:
         for name in names:
@@ -56,7 +61,12 @@ def stop(names):
 
 @cli.command(short_help='Show active tunnels')
 def show():
-    if tunneler.verbose:
+    print_active_tunnels(tunneler.verbose)
+    print_inactive_tunnels()
+
+
+def print_active_tunnels(verbose=False):
+    if verbose:
         active = [
             '{}({})'.format(name, data['local_port'])
             for (name, data) in tunneler.get_active_tunnels()
@@ -64,9 +74,19 @@ def show():
     else:
         active = tunneler.get_configured_tunnels(filter_active=True)
 
-    print 'Active:\t\t', ' '.join(sorted(active))
+    if active:
+        print 'Active:\t\t', ' '.join(sorted(active))
+    else:
+        print 'No active tunnels'
+
+
+def print_inactive_tunnels():
     inactive = tunneler.get_configured_tunnels(filter_active=False)
-    print 'Inactive:\t', ' '.join(sorted(inactive))
+
+    if inactive:
+        print 'Inactive:\t', ' '.join(sorted(inactive))
+    else:
+        print 'No inactive tunnels'
 
 
 if __name__ == '__main__':
