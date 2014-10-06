@@ -21,8 +21,7 @@ def cli(verbose):
         return
 
     global tunneler
-    tunneler = Tunneler(ProcessHelper(), config_parser.get_config())
-    tunneler.set_verbose(verbose)
+    tunneler = Tunneler(ProcessHelper(), config_parser.get_config(), verbose)
 
 
 @cli.command(short_help='Check the state of a tunnel')

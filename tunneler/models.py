@@ -1,3 +1,9 @@
+from collections import namedtuple
+
+
+Configuration = namedtuple('ConfigTuple', ['common', 'tunnels'])
+
+
 class Tunnel(object):
 
     def __init__(

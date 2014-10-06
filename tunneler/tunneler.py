@@ -13,10 +13,7 @@ class Tunneler(object):
         self.config = config
         self.verbose = verbose
 
-    def set_verbose(self, verbose):
-        self.verbose = verbose
-
-    def _find_tunnel_setting(self, server, port):
+    def _find_tunnel_config(self, server, port):
         for (name, tunnel) in self.config.tunnels.iteritems():
             if tunnel['server'] == server and tunnel['remote_port'] == port:
                 return (name, tunnel)
@@ -43,7 +40,7 @@ class Tunneler(object):
     def get_tunnel(self, name):
         for tunnel in self.process_helper.get_active_tunnels():
             try:
-                tunnel_name, setting = self._find_tunnel_setting(
+                tunnel_name, config = self._find_tunnel_config(
                     tunnel.server, tunnel.remote_port)
                 if tunnel_name == name:
                     tunnel.name = name
@@ -56,10 +53,10 @@ class Tunneler(object):
         tunnels = []
         for tunnel in self.process_helper.get_active_tunnels():
             try:
-                name, data = self._find_tunnel_setting(
+                name, config = self._find_tunnel_config(
                     tunnel.server, tunnel.remote_port)
                 tunnels.append(
-                    (name, data)
+                    (name, config)
                 )
             except LookupError:
                 tunnels.append(

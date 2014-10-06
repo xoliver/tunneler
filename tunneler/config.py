@@ -1,12 +1,10 @@
 import ConfigParser
-from collections import namedtuple
+from models import Configuration
 
 
 DEFAULT_USER = 'mr-x'
 
 DEFAULT_COMMON_CONFIG = {'default_user': DEFAULT_USER}
-
-Config = namedtuple('ConfigTuple', ['common', 'tunnels'])
 
 
 class TunnelerConfigParser(ConfigParser.ConfigParser):
@@ -31,4 +29,4 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
         data = self._as_dict()
         common = data.pop('common', DEFAULT_COMMON_CONFIG)
 
-        return Config(common, data)
+        return Configuration(common, data)
