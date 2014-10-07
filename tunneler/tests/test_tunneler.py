@@ -4,7 +4,7 @@ from mock import Mock
 
 from ..models import Configuration, Tunnel
 from ..process import ProcessHelper
-from ..tunneler import check_tunnel_exists, Tunneler
+from ..tunneler import check_tunnel_exists, ConfigNotFound, Tunneler
 
 
 class CheckTunnelExistsTestCase(TestCase):
@@ -26,9 +26,10 @@ class CheckTunnelExistsTestCase(TestCase):
         tunneler.config.tunnels = {}
 
         decorated_func = check_tunnel_exists(func)
-        result = decorated_func(tunneler, name)
 
-        self.assertTrue(type(result) == str)
+        with self.assertRaises(ConfigNotFound):
+            _ = decorated_func(tunneler, name)  # NOQA
+
         self.assertEqual(func.call_count, 0)
 
 

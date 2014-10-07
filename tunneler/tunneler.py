@@ -1,8 +1,11 @@
+class ConfigNotFound(LookupError):
+    pass
+
+
 def check_tunnel_exists(f):
     def wrap(obj, name):
         if name not in obj.config.tunnels:
-            # TODO: This should raise exception!
-            return 'Tunnel config not found: {}'.format(name)
+            raise ConfigNotFound()
         else:
             return f(obj, name)
     return wrap

@@ -3,7 +3,7 @@ from os.path import expanduser, join
 import click
 
 from config import TunnelerConfigParser
-from tunneler import Tunneler
+from tunneler import ConfigNotFound, Tunneler
 from process import ProcessHelper
 
 
@@ -43,7 +43,7 @@ def start(names):
         print_inactive_tunnels()
     else:
         for name in names:
-            print tunneler.start_tunnel(name)
+            start_tunnel(name)
 
 
 @cli.command(short_help='Stop one or more or ALL tunnels')
@@ -55,13 +55,27 @@ def stop(names):
         print tunneler.stop_all_tunnels()
     else:
         for name in names:
-            print tunneler.stop_tunnel(name)
+            stop_tunnel(name)
 
 
 @cli.command(short_help='Show active tunnels')
 def show():
     print_active_tunnels(tunneler.verbose)
     print_inactive_tunnels()
+
+
+def start_tunnel(name):
+    try:
+        tunneler.start_tunnel(name)
+    except ConfigNotFound:
+        print 'Tunnel config not found: {}'.format(name)
+
+
+def stop_tunnel(name):
+    try:
+        tunneler.stop_tunnel(name)
+    except ConfigNotFound:
+        print 'Tunnel config not found: {}'.format(name)
 
 
 def print_active_tunnels(verbose=False):
