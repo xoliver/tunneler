@@ -1,6 +1,7 @@
 def check_tunnel_exists(f):
     def wrap(obj, name):
         if name not in obj.config.tunnels:
+            # TODO: This should raise exception!
             return 'Tunnel config not found: {}'.format(name)
         else:
             return f(obj, name)
@@ -13,7 +14,7 @@ class Tunneler(object):
         self.config = config
         self.verbose = verbose
 
-    def _find_tunnel_config(self, server, port):
+    def _get_tunnel_config(self, server, port):
         for (name, tunnel) in self.config.tunnels.iteritems():
             if tunnel['server'] == server and tunnel['remote_port'] == port:
                 return (name, tunnel)
@@ -40,7 +41,7 @@ class Tunneler(object):
     def get_tunnel(self, name):
         for tunnel in self.process_helper.get_active_tunnels():
             try:
-                tunnel_name, config = self._find_tunnel_config(
+                tunnel_name, config = self._get_tunnel_config(
                     tunnel.server, tunnel.remote_port)
                 if tunnel_name == name:
                     tunnel.name = name
@@ -49,11 +50,11 @@ class Tunneler(object):
                 pass
         raise NameError()
 
-    def get_active_tunnels(self):
+    def get_tunnels(self):
         tunnels = []
         for tunnel in self.process_helper.get_active_tunnels():
             try:
-                name, config = self._find_tunnel_config(
+                name, config = self._get_tunnel_config(
                     tunnel.server, tunnel.remote_port)
                 tunnels.append(
                     (name, config)
@@ -101,7 +102,7 @@ class Tunneler(object):
 
     def stop_all_tunnels(self):
         results = ['Stopping all active tunnels']
-        for name, tunnel in self.get_active_tunnels():
+        for name, tunnel in self.get_tunnels():
             # This is not the best approach since we have its pid already
             # but dirty will do right now
             results.append(self.stop_tunnel(name) + ': ' + name)

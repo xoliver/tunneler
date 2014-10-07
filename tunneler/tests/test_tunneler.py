@@ -37,7 +37,7 @@ class TunnelerTestCase(TestCase):
         self.process_helper = Mock(ProcessHelper)
         self.tunneler = Tunneler(self.process_helper, Configuration({}, {}))
 
-    def test_find_tunnel_config_if_found(self):
+    def test_get_tunnel_config_if_found(self):
         name = 'testserver'
         fullname = 'fullserver.name'
         port = 42
@@ -51,12 +51,12 @@ class TunnelerTestCase(TestCase):
             tunnels={name: tunnel_data},
         )
 
-        result = self.tunneler._find_tunnel_config(fullname, port)
+        result = self.tunneler._get_tunnel_config(fullname, port)
         self.assertEqual(result, (name, tunnel_data))
 
-    def test_find_tunnel_config_if_not_found(self):
+    def test_get_tunnel_config_if_not_found(self):
         with self.assertRaises(LookupError):
-            self.tunneler._find_tunnel_config('someserver.somewhere', 69)
+            self.tunneler._get_tunnel_config('someserver.somewhere', 69)
 
     def test_get_configured_tunnels(self):
         tunnel_data = {'a': None, 'b': None}
@@ -100,13 +100,11 @@ class TunnelerTestCase(TestCase):
         self.assertEqual(self.tunneler.is_tunnel_active.call_count, 2)
 
     def test_is_tunnel_active(self):
-        tunnel_data = {'server': None}
+        tunnel_data = {'server1': None, 'server2': None}
         self.tunneler.config = Configuration(
             common={},
             tunnels=tunnel_data,
         )
-        # TODO redo this test - it's not clear
         self.tunneler.get_tunnel = Mock(side_effect=[Tunnel(), NameError])
-
-        self.assertTrue(self.tunneler.is_tunnel_active('server'))
-        self.assertFalse(self.tunneler.is_tunnel_active('server'))
+        self.assertTrue(self.tunneler.is_tunnel_active('server1'))
+        self.assertFalse(self.tunneler.is_tunnel_active('server2'))
