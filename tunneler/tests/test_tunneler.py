@@ -37,7 +37,7 @@ class TunnelerTestCase(TestCase):
         self.process_helper = Mock(ProcessHelper)
         self.tunneler = Tunneler(self.process_helper, Configuration({}, {}))
 
-    def test_get_tunnel_config_if_found(self):
+    def test_find_tunnel_name(self):
         name = 'testserver'
         fullname = 'fullserver.name'
         port = 42
@@ -51,12 +51,12 @@ class TunnelerTestCase(TestCase):
             tunnels={name: tunnel_data},
         )
 
-        result = self.tunneler._get_tunnel_config(fullname, port)
-        self.assertEqual(result, (name, tunnel_data))
+        result = self.tunneler.find_tunnel_name(fullname, port)
+        self.assertEqual(result, name)
 
-    def test_get_tunnel_config_if_not_found(self):
+    def test_find_tunnel_name_when_not_found(self):
         with self.assertRaises(LookupError):
-            self.tunneler._get_tunnel_config('someserver.somewhere', 69)
+            self.tunneler.find_tunnel_name('someserver.somewhere', 69)
 
     def test_get_configured_tunnels(self):
         tunnel_data = {'a': None, 'b': None}
