@@ -3,7 +3,7 @@ from os.path import expanduser, join
 import click
 
 from config import TunnelerConfigParser
-from tunneler import ConfigNotFound, Tunneler
+from tunneler import AlreadyThereError, ConfigNotFound, Tunneler
 from process import ProcessHelper
 
 
@@ -67,6 +67,8 @@ def show():
 def start_tunnel(name):
     try:
         tunneler.start_tunnel(name)
+    except AlreadyThereError:
+        print 'Tunnel already active'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 
@@ -74,6 +76,8 @@ def start_tunnel(name):
 def stop_tunnel(name):
     try:
         tunneler.stop_tunnel(name)
+    except AlreadyThereError:
+        print 'Tunnel already inactive'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 

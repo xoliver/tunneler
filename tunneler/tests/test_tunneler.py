@@ -4,7 +4,12 @@ from mock import Mock
 
 from ..models import Configuration, Tunnel
 from ..process import ProcessHelper
-from ..tunneler import check_tunnel_exists, ConfigNotFound, Tunneler
+from ..tunneler import (
+    AlreadyThereError,
+    ConfigNotFound,
+    Tunneler,
+    check_tunnel_exists,
+)
 
 
 class CheckTunnelExistsTestCase(TestCase):
@@ -36,6 +41,20 @@ class CheckTunnelExistsTestCase(TestCase):
 class TunnelerTestCase(TestCase):
     def setUp(self):
         self.process_helper = Mock(ProcessHelper)
+        self.tunnel_name = 'test_tunnel'
+        tunnel_data = {
+            self.tunnel_name: {
+                'user': 'somebody',
+                'server': 'somewhere',
+                'local_port': 2323,
+                'remote_port': 3434,
+            }
+        }
+
+        self.config = Configuration(
+            common={},
+            tunnels=tunnel_data)
+
         self.tunneler = Tunneler(self.process_helper, Configuration({}, {}))
 
     def test_find_tunnel_name(self):
@@ -60,16 +79,6 @@ class TunnelerTestCase(TestCase):
             self.tunneler.find_tunnel_name('someserver.somewhere', 69)
 
     def test_get_configured_tunnels(self):
-        tunnel_data = {'a': None, 'b': None}
-        self.tunneler.config = Configuration(
-            common={},
-            tunnels=tunnel_data,
-        )
-
-        configured_tunnels = self.tunneler.get_configured_tunnels()
-        self.assertEqual(configured_tunnels, tunnel_data.keys())
-
-    def test_get_configured_tunnels_filtering_active(self):
         tunnel_data = {'a': None, 'b': None}
         self.tunneler.config = Configuration(
             common={},
@@ -109,3 +118,17 @@ class TunnelerTestCase(TestCase):
         self.tunneler.get_tunnel = Mock(side_effect=[Tunnel(), NameError])
         self.assertTrue(self.tunneler.is_tunnel_active('server1'))
         self.assertFalse(self.tunneler.is_tunnel_active('server2'))
+
+    def test_start_tunnel_if_already_active(self):
+        self.tunneler.config = self.config
+        self.tunneler.get_active_tunnel = Mock(return_value=object())
+
+        with self.assertRaises(AlreadyThereError):
+            self.tunneler.start_tunnel(self.tunnel_name)
+
+    def test_stop_tunnel_if_already_inactive(self):
+        self.tunneler.config = self.config
+        self.tunneler.get_active_tunnel = Mock(side_effect=NameError)
+
+        with self.assertRaises(AlreadyThereError):
+            self.tunneler.stop_tunnel(self.tunnel_name)

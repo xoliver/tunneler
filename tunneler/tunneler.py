@@ -2,6 +2,10 @@ class ConfigNotFound(LookupError):
     pass
 
 
+class AlreadyThereError(Exception):
+    pass
+
+
 def check_tunnel_exists(f):
     def wrap(obj, name):
         if name not in obj.config.tunnels:
@@ -41,7 +45,7 @@ class Tunneler(object):
         else:
             return True
 
-    def get_tunnel(self, name):
+    def get_active_tunnel(self, name):
         for tunnel in self.process_helper.get_active_tunnels():
             try:
                 tunnel_name = self.find_tunnel_name(
@@ -72,8 +76,11 @@ class Tunneler(object):
     def start_tunnel(self, name):
         data = self.config.tunnels[name]
 
-        if self.is_tunnel_active(name):
-            return 'Tunnel already active'
+        try:
+            self.get_active_tunnel(name)
+            raise AlreadyThereError()
+        except NameError:
+            pass
 
         user_name = data['user'] if 'user' in data \
             else self.config.common['default_user']
@@ -93,9 +100,9 @@ class Tunneler(object):
     @check_tunnel_exists
     def stop_tunnel(self, name):
         try:
-            tunnel = self.get_tunnel(name)
+            tunnel = self.get_active_tunnel(name)
         except NameError:
-            return 'Tunnel not active'
+            raise AlreadyThereError()
 
         success = self.process_helper.stop_tunnel(tunnel)
         if success:
