@@ -119,12 +119,30 @@ class TunnelerTestCase(TestCase):
         self.assertTrue(self.tunneler.is_tunnel_active('server1'))
         self.assertFalse(self.tunneler.is_tunnel_active('server2'))
 
+    def test_start_tunnel(self):
+        self.tunneler.config = self.config
+        self.tunneler.get_active_tunnel = Mock(side_effect=NameError)
+        self.process_helper.start_tunnel = Mock('start_tunnel')
+
+        self.tunneler.start_tunnel(self.tunnel_name)
+
+        self.assertEqual(self.process_helper.start_tunnel.call_count, 1)
+
     def test_start_tunnel_if_already_active(self):
         self.tunneler.config = self.config
         self.tunneler.get_active_tunnel = Mock(return_value=object())
 
         with self.assertRaises(AlreadyThereError):
             self.tunneler.start_tunnel(self.tunnel_name)
+
+    def test_stop_tunnel(self):
+        self.tunneler.config = self.config
+        self.tunneler.get_active_tunnel = Mock(return_value=object())
+        self.process_helper.stop_tunnel = Mock('stop_tunnel')
+
+        self.tunneler.stop_tunnel(self.tunnel_name)
+
+        self.assertEqual(self.process_helper.stop_tunnel.call_count, 1)
 
     def test_stop_tunnel_if_already_inactive(self):
         self.tunneler.config = self.config
