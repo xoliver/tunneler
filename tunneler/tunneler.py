@@ -39,7 +39,7 @@ class Tunneler(object):
     @check_tunnel_exists
     def is_tunnel_active(self, name):
         try:
-            self.get_tunnel(name)
+            self.get_active_tunnel(name)
         except NameError:
             return False
         else:
@@ -107,10 +107,11 @@ class Tunneler(object):
         return self.process_helper.stop_tunnel(tunnel)
 
     def stop_all_tunnels(self):
-        results = ['Stopping all active tunnels']
+        results = []
         for name, tunnel in self.get_tunnels():
             # This is not the best approach since we have its pid already
             # but dirty will do right now
-            results.append(self.stop_tunnel(name) + ': ' + name)
+            result = self.stop_tunnel(name)
+            results.append((name, result,))
 
-        return '\n'.join(results)
+        return results

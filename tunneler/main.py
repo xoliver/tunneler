@@ -43,11 +43,7 @@ def start(names):
         print_inactive_tunnels()
     else:
         for name in names:
-            port = start_tunnel(name)
-            if port is not None:
-                print 'Tunnel started in port {}'.format(port)
-            else:
-                print 'Tunnel NOT started'
+            start_tunnel(name)
 
 
 @cli.command(short_help='Stop one or more or ALL tunnels')
@@ -56,13 +52,12 @@ def stop(names):
     if not names:
         print_active_tunnels()
     elif len(names) == 1 and names[0].lower() == 'all':
-        print tunneler.stop_all_tunnels()
+        for (name, result) in tunneler.stop_all_tunnels():
+            print '{} {}'.format(
+                name, 'stopped' if result else 'not stopped - problem!')
     else:
         for name in names:
-            if stop_tunnel(name):
-                print 'Tunnel stopped'
-            else:
-                print 'Problem stopping tunnel'
+            stop_tunnel(name)
 
 
 @cli.command(short_help='Show active tunnels')
@@ -73,27 +68,37 @@ def show():
 
 def start_tunnel(name):
     try:
-        tunneler.start_tunnel(name)
+        port = tunneler.start_tunnel(name)
     except AlreadyThereError:
         print 'Tunnel already active'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
+    else:
+        if port:
+            print 'Tunnel started in port {}'.format(port)
+        else:
+            print 'Tunnel NOT started'
 
 
 def stop_tunnel(name):
     try:
-        tunneler.stop_tunnel(name)
+        success = tunneler.stop_tunnel(name)
     except AlreadyThereError:
         print 'Tunnel already inactive'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
+    else:
+        if success:
+            print 'Tunnel stopped'
+        else:
+            print 'Problem stopping tunnel'
 
 
 def print_active_tunnels(verbose=False):
     if verbose:
         active = [
-            '{}({})'.format(name, data['local_port'])
-            for (name, data) in tunneler.get_active_tunnels()
+            '{}:{}'.format(name, data['local_port'])
+            for (name, data) in tunneler.get_tunnels()
         ]
     else:
         active = tunneler.get_configured_tunnels(filter_active=True)
