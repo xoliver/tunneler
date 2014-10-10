@@ -93,9 +93,9 @@ class Tunneler(object):
         )
 
         if success:
-            return 'Tunnel started in port {}'.format(data['local_port'])
+            return data['local_port']
         else:
-            return 'Tunnel NOT started'
+            return None
 
     @check_tunnel_exists
     def stop_tunnel(self, name):
@@ -104,11 +104,7 @@ class Tunneler(object):
         except NameError:
             raise AlreadyThereError()
 
-        success = self.process_helper.stop_tunnel(tunnel)
-        if success:
-            return 'Tunnel stopped'
-        else:
-            return 'Problem stopping tunnel'
+        return self.process_helper.stop_tunnel(tunnel)
 
     def stop_all_tunnels(self):
         results = ['Stopping all active tunnels']

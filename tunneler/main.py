@@ -43,7 +43,11 @@ def start(names):
         print_inactive_tunnels()
     else:
         for name in names:
-            start_tunnel(name)
+            port = start_tunnel(name)
+            if port is not None:
+                print 'Tunnel started in port {}'.format(port)
+            else:
+                print 'Tunnel NOT started'
 
 
 @cli.command(short_help='Stop one or more or ALL tunnels')
@@ -55,7 +59,10 @@ def stop(names):
         print tunneler.stop_all_tunnels()
     else:
         for name in names:
-            stop_tunnel(name)
+            if stop_tunnel(name):
+                print 'Tunnel stopped'
+            else:
+                print 'Problem stopping tunnel'
 
 
 @cli.command(short_help='Show active tunnels')
