@@ -115,7 +115,8 @@ class TunnelerTestCase(TestCase):
             common={},
             tunnels=tunnel_data,
         )
-        self.tunneler.get_tunnel = Mock(side_effect=[Tunnel(), NameError])
+        self.tunneler.get_active_tunnel = Mock(
+            side_effect=[Tunnel(), NameError])
         self.assertTrue(self.tunneler.is_tunnel_active('server1'))
         self.assertFalse(self.tunneler.is_tunnel_active('server2'))
 
