@@ -57,7 +57,7 @@ class Tunneler(object):
                 pass
         raise NameError()
 
-    def get_tunnels(self):
+    def get_active_tunnels(self):
         tunnels = []
         for tunnel in self.process_helper.get_active_tunnels():
             try:
@@ -108,7 +108,7 @@ class Tunneler(object):
 
     def stop_all_tunnels(self):
         results = []
-        for name, tunnel in self.get_tunnels():
+        for name, tunnel in self.get_active_tunnels():
             # This is not the best approach since we have its pid already
             # but dirty will do right now
             result = self.stop_tunnel(name)
