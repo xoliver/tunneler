@@ -98,7 +98,7 @@ def print_active_tunnels(verbose=False):
     if verbose:
         active = [
             '{}:{}'.format(name, data['local_port'])
-            for (name, data) in tunneler.get_tunnels()
+            for (name, data) in tunneler.get_active_tunnels()
         ]
     else:
         active = tunneler.get_configured_tunnels(filter_active=True)
