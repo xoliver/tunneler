@@ -28,5 +28,16 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
     def get_config(self):
         data = self._as_dict()
         common = data.pop('common', DEFAULT_COMMON_CONFIG)
+        groups = data.pop('groups', {})
 
-        return Configuration(common, data)
+        for (name, value) in groups.items():
+            processed_values = []
+            for tunnel in value.strip().split('\n'):
+                if ':' in tunnel:
+                    parts = tunnel.rsplit(':', 1)
+                    processed_values.append((parts[0], int(parts[1])))
+                else:
+                    processed_values.append((tunnel, None))
+            groups[name] = processed_values
+
+        return Configuration(common, data, groups)

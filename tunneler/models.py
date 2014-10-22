@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-Configuration = namedtuple('ConfigTuple', ['common', 'tunnels'])
+Configuration = namedtuple('ConfigTuple', ['common', 'tunnels', 'groups'])
 
 
 class Tunnel(object):

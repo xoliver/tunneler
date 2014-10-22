@@ -60,8 +60,9 @@ class TunnelerTestCase(TestCase):
 
         self.config = Configuration(
             common={},
-            tunnels=tunnel_config)
-        self.empty_config = Configuration({}, {})
+            tunnels=tunnel_config,
+            groups={})
+        self.empty_config = Configuration({}, {}, {})
 
         self.tunneler = Tunneler(self.process_helper, self.empty_config)
 
@@ -77,6 +78,7 @@ class TunnelerTestCase(TestCase):
         self.tunneler.config = Configuration(
             common={},
             tunnels={name: tunnel_config},
+            groups={},
         )
 
         result = self.tunneler.find_tunnel_name(fullname, port)
@@ -91,6 +93,7 @@ class TunnelerTestCase(TestCase):
         self.tunneler.config = Configuration(
             common={},
             tunnels=tunnel_config,
+            groups={},
         )
 
         configured_tunnels = self.tunneler.get_configured_tunnels()
@@ -101,6 +104,7 @@ class TunnelerTestCase(TestCase):
         self.tunneler.config = Configuration(
             common={},
             tunnels=tunnel_config,
+            groups={},
         )
 
         # Filtering active
@@ -148,6 +152,7 @@ class TunnelerTestCase(TestCase):
         self.tunneler.config = Configuration(
             common={},
             tunnels=tunnel_config,
+            groups={},
         )
         self.tunneler.get_active_tunnel = Mock(
             side_effect=[Tunnel(), NameError])
