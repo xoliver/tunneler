@@ -1,4 +1,5 @@
 from os.path import expanduser, join
+import sys
 
 import click
 
@@ -18,7 +19,12 @@ def cli(verbose):
     config_parser = TunnelerConfigParser()
     if not config_parser.read(config_file):
         print 'Could not find valid ~/.tunneler.cfg! - Aborting'
-        return
+        sys.exit(0)
+    validation_errors = config_parser.validate()
+    if validation_errors:
+        print 'Problem loading ~/.tunneler.cfg :'
+        print '\n'.join(validation_errors)
+        sys.exit(0)
 
     global tunneler
     tunneler = Tunneler(ProcessHelper(), config_parser.get_config(), verbose)

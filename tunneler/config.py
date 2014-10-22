@@ -25,7 +25,7 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
                     d[k][field] = int(d[k][field])
         return d
 
-    def get_config(self):
+    def _create_config(self):
         data = self._as_dict()
         common = data.pop('common', DEFAULT_COMMON_CONFIG)
         groups = data.pop('groups', {})
@@ -40,4 +40,29 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
                     processed_values.append((tunnel, None))
             groups[name] = processed_values
 
-        return Configuration(common, data, groups)
+        self._config = Configuration(common, data, groups)
+
+    def get_config(self):
+        if not hasattr(self, '_config'):
+            self._create_config()
+
+        return self._config
+
+    def validate(self):
+        if not hasattr(self, '_config'):
+            self._create_config()
+
+        results = []
+
+        for group_name, group_tunnels in self._config.groups.items():
+            for (tunnel, port) in group_tunnels:
+                if tunnel not in self._config.tunnels:
+                    results.append('[{}] tunnel {} undefined'.format(
+                        group_name, tunnel)
+                    )
+            if group_name in self._config.tunnels:
+                results.append(
+                    'Found one group and a tunnel called the same: {}'.format(
+                        group_name)
+                )
+        return results
