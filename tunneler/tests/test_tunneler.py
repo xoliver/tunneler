@@ -8,7 +8,7 @@ from ..tunneler import (
     AlreadyThereError,
     ConfigNotFound,
     Tunneler,
-    check_tunnel_exists,
+    check_name_exists,
 )
 
 
@@ -18,8 +18,9 @@ class CheckTunnelExistsTestCase(TestCase):
         name = 'atunnel'
         tunneler = Mock()
         tunneler.config.tunnels = {'atunnel': 'yes indeed'}
+        tunneler.config.groups = {}
 
-        decorated_func = check_tunnel_exists(func)
+        decorated_func = check_name_exists(func)
         decorated_func(tunneler, name)
 
         func.assert_called_once_with(tunneler, name)
@@ -29,8 +30,9 @@ class CheckTunnelExistsTestCase(TestCase):
         name = 'atunnel'
         tunneler = Mock()
         tunneler.config.tunnels = {}
+        tunneler.config.groups = {}
 
-        decorated_func = check_tunnel_exists(func)
+        decorated_func = check_name_exists(func)
 
         with self.assertRaises(ConfigNotFound):
             _ = decorated_func(tunneler, name)  # NOQA
@@ -182,9 +184,9 @@ class TunnelerTestCase(TestCase):
     def test_start_tunnel(self):
         self.tunneler.config = self.config
         self.tunneler.get_active_tunnel = Mock(side_effect=NameError)
-        self.process_helper.start_tunnel = Mock(return_value=True)
+        self.process_helper._start_tunnel = Mock(return_value=True)
 
-        result = self.tunneler.start_tunnel(self.tunnel_name)
+        result = self.tunneler._start_tunnel(self.tunnel_name)
 
         self.assertEqual(self.process_helper.start_tunnel.call_count, 1)
         self.assertEqual(result, self.tunnel.local_port)
@@ -194,7 +196,7 @@ class TunnelerTestCase(TestCase):
         self.tunneler.get_active_tunnel = Mock(side_effect=NameError)
         self.process_helper.start_tunnel = Mock(return_value=False)
 
-        result = self.tunneler.start_tunnel(self.tunnel_name)
+        result = self.tunneler._start_tunnel(self.tunnel_name)
         self.assertIsNone(result)
 
     def test_start_tunnel_if_already_active(self):
@@ -202,14 +204,14 @@ class TunnelerTestCase(TestCase):
         self.tunneler.get_active_tunnel = Mock(return_value=object())
 
         with self.assertRaises(AlreadyThereError):
-            self.tunneler.start_tunnel(self.tunnel_name)
+            self.tunneler._start_tunnel(self.tunnel_name)
 
     def test_stop_tunnel(self):
         self.tunneler.config = self.config
         self.tunneler.get_active_tunnel = Mock(return_value=object())
-        self.process_helper.stop_tunnel = Mock(return_value=True)
+        self.process_helper._stop_tunnel = Mock(return_value=True)
 
-        result = self.tunneler.stop_tunnel(self.tunnel_name)
+        result = self.tunneler._stop_tunnel(self.tunnel_name)
 
         self.assertEqual(self.process_helper.stop_tunnel.call_count, 1)
         self.assertTrue(result)
@@ -219,7 +221,7 @@ class TunnelerTestCase(TestCase):
         self.tunneler.get_active_tunnel = Mock(return_value=object())
         self.process_helper.stop_tunnel = Mock(return_value=False)
 
-        result = self.tunneler.stop_tunnel(self.tunnel_name)
+        result = self.tunneler._stop_tunnel(self.tunnel_name)
 
         self.assertFalse(result)
 
@@ -228,15 +230,15 @@ class TunnelerTestCase(TestCase):
         self.tunneler.get_active_tunnel = Mock(side_effect=NameError)
 
         with self.assertRaises(AlreadyThereError):
-            self.tunneler.stop_tunnel(self.tunnel_name)
+            self.tunneler._stop_tunnel(self.tunnel_name)
 
     def test_stop_all_tunnels(self):
         active_tunnels = [(self.tunnel_name, self.tunnel)]
         self.tunneler.get_active_tunnels = Mock(return_value=active_tunnels)
-        self.tunneler.stop_tunnel = Mock(return_value='True')
+        self.tunneler._stop_tunnel = Mock(return_value='True')
 
         result = self.tunneler.stop_all_tunnels()
 
         self.assertEqual(len(result), len(active_tunnels))
         self.assertEqual(
-            self.tunneler.stop_tunnel.call_count, len(active_tunnels))
+            self.tunneler._stop_tunnel.call_count, len(active_tunnels))

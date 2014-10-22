@@ -49,7 +49,7 @@ def start(names):
         print_inactive_tunnels()
     else:
         for name in names:
-            start_tunnel(name)
+            start_call(name)
 
 
 @cli.command(short_help='Stop one or more or ALL tunnels')
@@ -63,7 +63,7 @@ def stop(names):
                 name, 'stopped' if result else 'not stopped - problem!')
     else:
         for name in names:
-            stop_tunnel(name)
+            stop_call(name)
 
 
 @cli.command(short_help='Show active tunnels')
@@ -72,32 +72,38 @@ def show():
     print_inactive_tunnels()
 
 
-def start_tunnel(name):
+def start_call(name):
     try:
-        port = tunneler.start_tunnel(name)
+        port = tunneler.start(name)
     except AlreadyThereError:
         print 'Tunnel already active'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
     else:
         if port:
-            print 'Tunnel started in port {}'.format(port)
+            if type(port) == list:
+                print 'Tunnels started in ports {}'.format(port)
+            else:
+                print 'Tunnel started in port {}'.format(port)
         else:
             print 'Tunnel NOT started'
 
 
-def stop_tunnel(name):
+def stop_call(name):
     try:
-        success = tunneler.stop_tunnel(name)
+        success = tunneler.stop(name)
     except AlreadyThereError:
         print 'Tunnel already inactive'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
     else:
-        if success:
-            print 'Tunnel stopped'
+        if type(success) == list:
+            print 'Successes stopping tunnels: {}'.format(success)
         else:
-            print 'Problem stopping tunnel'
+            if success:
+                print 'Tunnel stopped'
+            else:
+                print 'Problem stopping tunnel'
 
 
 def print_active_tunnels(verbose=False):

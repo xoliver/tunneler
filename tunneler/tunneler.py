@@ -6,9 +6,9 @@ class AlreadyThereError(Exception):
     pass
 
 
-def check_tunnel_exists(f):
+def check_name_exists(f):
     def wrap(obj, name):
-        if name not in obj.config.tunnels:
+        if name not in obj.config.tunnels and name not in obj.config.groups:
             raise ConfigNotFound()
         else:
             return f(obj, name)
@@ -36,7 +36,7 @@ class Tunneler(object):
         else:
             return [key for key in keys if not self.is_tunnel_active(key)]
 
-    @check_tunnel_exists
+    @check_name_exists
     def is_tunnel_active(self, name):
         try:
             self.get_active_tunnel(name)
@@ -72,8 +72,25 @@ class Tunneler(object):
                 )
         return tunnels
 
-    @check_tunnel_exists
-    def start_tunnel(self, name):
+    @check_name_exists
+    def start(self, name):
+        # TODO : when starting a group, if a tunnel is already active the
+        # whole thing fails and it's not properly handled
+        if name in self.config.groups:
+            return self._start_group(name)
+        else:
+            return self._start_tunnel(name)
+
+    def _start_group(self, name):
+        results = []
+        for (tunnel_name, tunnel_port) in self.config.groups[name]:
+            if tunnel_port:
+                print 'Ignoring tunnel port for {} in group {}'.format(
+                    tunnel_name, name)
+            results.append(self._start_tunnel(tunnel_name))
+        return results
+
+    def _start_tunnel(self, name):
         data = self.config.tunnels[name]
 
         try:
@@ -97,8 +114,20 @@ class Tunneler(object):
         else:
             return None
 
-    @check_tunnel_exists
-    def stop_tunnel(self, name):
+    @check_name_exists
+    def stop(self, name):
+        if name in self.config.groups:
+            return self._stop_group(name)
+        else:
+            return self._stop_tunnel(name)
+
+    def _stop_group(self, name):
+        results = []
+        for (tunnel_name, tunnel_port) in self.config.groups[name]:
+            results.append(self._stop_tunnel(tunnel_name))
+        return results
+
+    def _stop_tunnel(self, name):
         try:
             tunnel = self.get_active_tunnel(name)
         except NameError:
@@ -111,7 +140,7 @@ class Tunneler(object):
         for name, tunnel in self.get_active_tunnels():
             # This is not the best approach since we have its pid already
             # but dirty will do right now
-            result = self.stop_tunnel(name)
+            result = self._stop_tunnel(name)
             results.append((name, result,))
 
         return results
