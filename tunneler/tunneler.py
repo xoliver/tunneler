@@ -82,20 +82,18 @@ class Tunneler(object):
             return self._start_tunnel(name)
 
     def _start_group(self, name):
-        results = []
         for (tunnel_name, tunnel_port) in self.config.groups[name]:
             if tunnel_port:
                 print 'Ignoring tunnel port for {} in group {}'.format(
                     tunnel_name, name)
-            results.append(self._start_tunnel(tunnel_name))
-        return results
+            yield self._start_tunnel(tunnel_name)[0]
 
     def _start_tunnel(self, name):
         data = self.config.tunnels[name]
 
         try:
             self.get_active_tunnel(name)
-            raise AlreadyThereError()
+            return [(name, 'already running')]
         except NameError:
             pass
 
@@ -110,9 +108,9 @@ class Tunneler(object):
         )
 
         if success:
-            return data['local_port']
+            return [(name, data['local_port'])]
         else:
-            return None
+            return [(name, None)]
 
     @check_name_exists
     def stop(self, name):
@@ -122,18 +120,16 @@ class Tunneler(object):
             return self._stop_tunnel(name)
 
     def _stop_group(self, name):
-        results = []
         for (tunnel_name, tunnel_port) in self.config.groups[name]:
-            results.append(self._stop_tunnel(tunnel_name))
-        return results
+            yield self._stop_tunnel(tunnel_name)[0]
 
     def _stop_tunnel(self, name):
         try:
             tunnel = self.get_active_tunnel(name)
         except NameError:
-            raise AlreadyThereError()
+            return [(name, False)]
 
-        return self.process_helper.stop_tunnel(tunnel)
+        return [(name, self.process_helper.stop_tunnel(tunnel))]
 
     def stop_all_tunnels(self):
         results = []

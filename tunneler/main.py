@@ -74,36 +74,28 @@ def show():
 
 def start_call(name):
     try:
-        port = tunneler.start(name)
+        for (tunnel_name, port) in tunneler.start(name):
+            if port:
+                print 'Started {} in port {}'.format(tunnel_name, port)
+            else:
+                print 'Could not start {}'.format(tunnel_name)
     except AlreadyThereError:
         print 'Tunnel already active'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
-    else:
-        if port:
-            if type(port) == list:
-                print 'Tunnels started in ports {}'.format(port)
-            else:
-                print 'Tunnel started in port {}'.format(port)
-        else:
-            print 'Tunnel NOT started'
 
 
 def stop_call(name):
     try:
-        success = tunneler.stop(name)
+        for (tunnel_name, success) in tunneler.stop(name):
+            if success:
+                print 'Stopped {}'.format(tunnel_name)
+            else:
+                print 'Problem stopping {}'.format(tunnel_name)
     except AlreadyThereError:
         print 'Tunnel already inactive'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
-    else:
-        if type(success) == list:
-            print 'Successes stopping tunnels: {}'.format(success)
-        else:
-            if success:
-                print 'Tunnel stopped'
-            else:
-                print 'Problem stopping tunnel'
 
 
 def print_active_tunnels(verbose=False):
