@@ -9,8 +9,11 @@ pid_matcher = re.compile(r'^(\d+)-')
 port_matcher = re.compile(r'.*-L(\d+):localhost:(\d+).*')
 login_matcher = re.compile(r'.* ([^@]+)@([^ ]+).*')
 
+# -g allow remote host to connect to local port
+# -f go to background
+# -o StrictHostKeyChecking=no
 START_COMMAND = \
-    'ssh -f -N -L{local_port}:localhost:{remote_port} {user}@{server}'
+    'ssh -g -f -N -L{local_port}:localhost:{remote_port} {user}@{server}'
 
 
 class ProcessHelper(object):
