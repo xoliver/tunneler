@@ -4,7 +4,7 @@ import sys
 import click
 
 from config import TunnelerConfigParser
-from tunneler import AlreadyThereError, ConfigNotFound, Tunneler
+from tunneler import ConfigNotFound, Tunneler
 from process import ProcessHelper
 
 
@@ -79,8 +79,6 @@ def start_call(name):
                 print 'Started {} in port {}'.format(tunnel_name, port)
             else:
                 print 'Could not start {}'.format(tunnel_name)
-    except AlreadyThereError:
-        print 'Tunnel already active'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 
@@ -92,8 +90,6 @@ def stop_call(name):
                 print 'Stopped {}'.format(tunnel_name)
             else:
                 print 'Problem stopping {}'.format(tunnel_name)
-    except AlreadyThereError:
-        print 'Tunnel already inactive'
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 

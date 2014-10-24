@@ -5,7 +5,6 @@ from mock import Mock
 from ..models import Configuration, Tunnel
 from ..process import ProcessHelper
 from ..tunneler import (
-    AlreadyThereError,
     ConfigNotFound,
     Tunneler,
     check_name_exists,
@@ -189,7 +188,7 @@ class TunnelerTestCase(TestCase):
         result = self.tunneler._start_tunnel(self.tunnel_name)
 
         self.assertEqual(self.process_helper.start_tunnel.call_count, 1)
-        self.assertEqual(result, self.tunnel.local_port)
+        self.assertEqual(result, [(self.tunnel_name, self.tunnel.local_port)])
 
     def test_start_tunnel_if_command_fails(self):
         self.tunneler.config = self.config
@@ -197,14 +196,14 @@ class TunnelerTestCase(TestCase):
         self.process_helper.start_tunnel = Mock(return_value=False)
 
         result = self.tunneler._start_tunnel(self.tunnel_name)
-        self.assertIsNone(result)
+        self.assertEquals(result, [(self.tunnel_name, None)])
 
     def test_start_tunnel_if_already_active(self):
         self.tunneler.config = self.config
         self.tunneler.get_active_tunnel = Mock(return_value=object())
 
-        with self.assertRaises(AlreadyThereError):
-            self.tunneler._start_tunnel(self.tunnel_name)
+        result = self.tunneler._start_tunnel(self.tunnel_name)
+        self.assertEqual(result, [(self.tunnel_name, 'already running')])
 
     def test_stop_tunnel(self):
         self.tunneler.config = self.config
@@ -223,14 +222,15 @@ class TunnelerTestCase(TestCase):
 
         result = self.tunneler._stop_tunnel(self.tunnel_name)
 
-        self.assertFalse(result)
+        self.assertEquals(result, [(self.tunnel_name, False)])
 
     def test_stop_tunnel_if_already_inactive(self):
         self.tunneler.config = self.config
         self.tunneler.get_active_tunnel = Mock(side_effect=NameError)
 
-        with self.assertRaises(AlreadyThereError):
-            self.tunneler._stop_tunnel(self.tunnel_name)
+        result = self.tunneler._stop_tunnel(self.tunnel_name)
+
+        self.assertEqual(result, [(self.tunnel_name, False)])
 
     def test_stop_all_tunnels(self):
         active_tunnels = [(self.tunnel_name, self.tunnel)]
