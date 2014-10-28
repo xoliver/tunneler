@@ -67,7 +67,7 @@ class TunnelerTestCase(TestCase):
 
         self.tunneler = Tunneler(self.process_helper, self.empty_config)
 
-    def test_find_tunnel_name(self):
+    def test_identify_tunnel_with_one_found(self):
         name = 'testserver'
         fullname = 'fullserver.name'
         port = 42
@@ -82,12 +82,33 @@ class TunnelerTestCase(TestCase):
             groups={},
         )
 
-        result = self.tunneler.find_tunnel_name(fullname, port)
-        self.assertEqual(result, name)
+        result = self.tunneler.identify_tunnel(fullname, port)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], name)
 
-    def test_find_tunnel_name_when_not_found(self):
+    def test_identify_tunnel_with_more_than_one_found(self):
+        name = 'testserver'
+        name2 = 'testserver-clone'
+        fullname = 'fullserver.name'
+        port = 42
+
+        tunnel_config = {
+            'server': fullname,
+            'remote_port': port,
+        }
+        self.tunneler.config = Configuration(
+            common={},
+            tunnels={name: tunnel_config, name2: tunnel_config},
+            groups={},
+        )
+
+        result = self.tunneler.identify_tunnel(fullname, port)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(set(result), set([name, name2]))
+
+    def test_identify_tunnel_when_not_found(self):
         with self.assertRaises(LookupError):
-            self.tunneler.find_tunnel_name('someserver.somewhere', 69)
+            self.tunneler.identify_tunnel('someserver.somewhere', 69)
 
     def test_get_configured_tunnels(self):
         tunnel_config = {'a': None, 'b': None}

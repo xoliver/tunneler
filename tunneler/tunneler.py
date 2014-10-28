@@ -17,10 +17,13 @@ class Tunneler(object):
         self.config = config
         self.verbose = verbose
 
-    def find_tunnel_name(self, server, port):
+    def identify_tunnel(self, server, port):
+        names = []
         for (name, tunnel) in self.config.tunnels.iteritems():
             if tunnel['server'] == server and tunnel['remote_port'] == port:
-                return name
+                names.append(name)
+        if names:
+            return names
         raise LookupError()
 
     def get_configured_tunnels(self, filter_active=None):
@@ -44,11 +47,12 @@ class Tunneler(object):
     def get_active_tunnel(self, name):
         for tunnel in self.process_helper.get_active_tunnels():
             try:
-                tunnel_name = self.find_tunnel_name(
+                tunnel_names = self.identify_tunnel(
                     tunnel.server, tunnel.remote_port)
-                if tunnel_name == name:
-                    tunnel.name = name
-                    return tunnel
+                for tunnel_name in tunnel_names:
+                    if tunnel_name == name:
+                        tunnel.name = name
+                        return tunnel
             except LookupError:
                 pass
         raise NameError()
@@ -57,11 +61,12 @@ class Tunneler(object):
         tunnels = []
         for tunnel in self.process_helper.get_active_tunnels():
             try:
-                name = self.find_tunnel_name(
+                names = self.identify_tunnel(
                     tunnel.server, tunnel.remote_port)
-                tunnels.append(
-                    (name, self.config.tunnels[name])
-                )
+                for name in names:
+                    tunnels.append(
+                        (name, self.config.tunnels[name])
+                    )
             except LookupError:
                 tunnels.append(
                     ('Unknown', {'found': '{}'.format(tunnel)})
@@ -70,8 +75,6 @@ class Tunneler(object):
 
     @check_name_exists
     def start(self, name):
-        # TODO : when starting a group, if a tunnel is already active the
-        # whole thing fails and it's not properly handled
         if name in self.config.groups:
             return self._start_group(name)
         else:
