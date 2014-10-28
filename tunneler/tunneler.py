@@ -137,12 +137,9 @@ class Tunneler(object):
         Yield tuples (tunnel name, started port OR status/error).
         """
         for (tunnel_name, tunnel_port) in self.config.groups[name]:
-            if tunnel_port:
-                print 'Ignoring tunnel port for {} in group {}'.format(
-                    tunnel_name, name)
-            yield self._start_tunnel(tunnel_name)[0]
+            yield self._start_tunnel(tunnel_name, tunnel_port)[0]
 
-    def _start_tunnel(self, name):
+    def _start_tunnel(self, name, local_port_override=None):
         """
         Launch specified tunnel.
 
@@ -159,15 +156,18 @@ class Tunneler(object):
         user_name = data['user'] if 'user' in data \
             else self.config.common['default_user']
 
+        local_port = local_port_override \
+            if local_port_override is not None else data['local_port']
+
         success = self.process_helper.start_tunnel(
             user=user_name,
             server=data['server'],
-            local_port=data['local_port'],
+            local_port=local_port,
             remote_port=data['remote_port']
         )
 
         if success:
-            return [(name, data['local_port'])]
+            return [(name, local_port)]
         else:
             return [(name, None)]
 
