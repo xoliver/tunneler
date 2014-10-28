@@ -1,13 +1,16 @@
+"""
+Tunnel process management code.
+"""
+
 import re
 from subprocess import call
 
 import psutil
 
-from models import Tunnel
+from .models import Tunnel
 
-pid_matcher = re.compile(r'^(\d+)-')
-port_matcher = re.compile(r'.*-L(\d+):localhost:(\d+).*')
-login_matcher = re.compile(r'.* ([^@]+)@([^ ]+).*')
+PORT_MATCHER = re.compile(r'.*-L(\d+):localhost:(\d+).*')
+LOGIN_MATCHER = re.compile(r'.* ([^@]+)@([^ ]+).*')
 
 # -g allow remote host to connect to local port
 # -f go to background
@@ -17,7 +20,16 @@ START_COMMAND = \
 
 
 class ProcessHelper(object):
+    """
+    Class that offers helper functions for working with tunnel processes.
+    """
+
     def get_active_tunnels(self):
+        """
+        Identify all running tunnels and return their data.
+
+        Yield Tunnels
+        """
         for process in psutil.process_iter():
             try:
                 if process.name() == 'ssh' and '-N' in process.cmdline():
@@ -28,17 +40,34 @@ class ProcessHelper(object):
                     except AttributeError:
                         pass
                     else:
-                        yield Tunnel('unidentified', process, local_port, remote_port, user, server)  # NOQA
+                        yield Tunnel(
+                            'unidentified',
+                            process,
+                            local_port,
+                            remote_port,
+                            user,
+                            server,
+                        )
             except psutil.AccessDenied:
                 pass
 
     def extract_tunnel_info(self, line):
-        (local_port, remote_port) = port_matcher.match(line).groups()
-        (user, server) = login_matcher.match(line).groups()
+        """
+        Get useful tunnel process information from its launch command.
+
+        Return local port, remote port, user, server
+        """
+        (local_port, remote_port) = PORT_MATCHER.match(line).groups()
+        (user, server) = LOGIN_MATCHER.match(line).groups()
 
         return int(local_port), int(remote_port), user, server
 
     def start_tunnel(self, user, server, local_port, remote_port):
+        """
+        Launch a tunnel based on the specified parameters.
+
+        Return boolean with result of call.
+        """
         command = START_COMMAND.format(
             user=user,
             server=server,
@@ -48,6 +77,11 @@ class ProcessHelper(object):
         return call(command.split()) == 0
 
     def stop_tunnel(self, tunnel):
+        """
+        Terminate a tunnel's process.
+
+        Return boolean with result of operation.
+        """
         try:
             tunnel.process.terminate()
             return True
