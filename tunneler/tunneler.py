@@ -35,7 +35,7 @@ class Tunneler(object):
         self.config = config
         self.verbose = verbose
 
-    def identify_tunnel(self, server, port):
+    def identify_tunnel(self, server, remote_port):
         """
         Retrieve tunnels matching parameters.
 
@@ -43,7 +43,8 @@ class Tunneler(object):
         """
         names = []
         for (name, tunnel) in self.config.tunnels.iteritems():
-            if tunnel['server'] == server and tunnel['remote_port'] == port:
+            if tunnel['server'] == server \
+                    and tunnel['remote_port'] == remote_port:
                 names.append(name)
         if names:
             return names
