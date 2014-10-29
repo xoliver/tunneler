@@ -75,6 +75,8 @@ def stop(names):
 def show():
     print_active_tunnels(tunneler.verbose)
     print_inactive_tunnels()
+    print_active_groups()
+    print_inactive_groups()
 
 
 def start_call(name):
@@ -126,6 +128,22 @@ def print_inactive_tunnels():
     else:
         print 'No inactive tunnels'
 
+
+def print_active_groups():
+    active = tunneler.get_configured_groups(filter_active=True)
+    if active:
+        print 'Active groups:\t', ' '.join(active)
+    else:
+        print 'No active groups'
+
+
+def print_inactive_groups():
+    inactive = tunneler.get_configured_groups(filter_active=False)
+    if inactive:
+        print 'Inactive groups:\t', ' '.join(
+            tunneler.get_configured_groups(filter_active=False))
+    else:
+        print 'No inactive groups'
 
 if __name__ == '__main__':
     cli(False)

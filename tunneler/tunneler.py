@@ -60,7 +60,8 @@ class Tunneler(object):
         groups = []
 
         for (group, contents) in self.config.groups.iteritems():
-            if set(contents).issubset(name_set):
+            group_names = set(g[0] for g in contents)
+            if group_names.issubset(name_set):
                 groups.append(group)
         return groups
 
@@ -70,13 +71,32 @@ class Tunneler(object):
 
         Return list of tunnel names.
         """
-        keys = self.config.tunnels.keys()
+        tunnels = self.config.tunnels.keys()
         if filter_active is None:
-            return keys
+            return tunnels
         elif filter_active:
-            return [key for key in keys if self.is_tunnel_active(key)]
+            return [
+                tunnel for tunnel in tunnels
+                if self.is_tunnel_active(tunnel)
+            ]
         else:
-            return [key for key in keys if not self.is_tunnel_active(key)]
+            return [
+                tunnel for tunnel in tunnels
+                if not self.is_tunnel_active(tunnel)
+            ]
+
+    def get_configured_groups(self, filter_active=None):
+        """
+        Retrieve groups that are active, inactive or both.
+
+        Return list of group names.
+        """
+        groups = self.config.groups.keys()
+        if filter_active is None:
+            return groups
+        else:
+            tunnels = self.get_configured_tunnels(filter_active)
+            return self.identify_group(tunnels)
 
     @check_name_exists
     def is_tunnel_active(self, name):

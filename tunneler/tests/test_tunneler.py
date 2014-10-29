@@ -112,8 +112,8 @@ class TunnelerTestCase(TestCase):
 
     def test_identify_groups(self):
         group_config = {
-            'group1': ['tunnel1', 'tunnel2'],
-            'group2': ['tunnel3'],
+            'group1': [('tunnel1', None), ('tunnel2', 1234)],
+            'group2': [('tunnel3', None)],
         }
         self.tunneler.config = Configuration(
             common={},
