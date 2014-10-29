@@ -2,6 +2,7 @@ from os.path import expanduser, join
 import sys
 
 import click
+from colorama import Fore
 
 from config import TunnelerConfigParser
 from tunneler import ConfigNotFound, Tunneler
@@ -59,8 +60,12 @@ def stop(names):
         print_active_tunnels()
     elif len(names) == 1 and names[0].lower() == 'all':
         for (name, result) in tunneler.stop_all_tunnels():
-            print '{} {}'.format(
-                name, 'stopped' if result else 'not stopped - problem!')
+            if result:
+                print '[ {}OK{} ] {}'.format(
+                    Fore.GREEN, Fore.RESET, name)
+            else:
+                print '[ {}FAIL{} ] {}'.format(
+                    Fore.RED, Fore.RESET, name)
     else:
         for name in names:
             stop_call(name)
@@ -75,10 +80,12 @@ def show():
 def start_call(name):
     try:
         for (tunnel_name, port) in tunneler.start(name):
-            if port:
-                print 'Started {} in port {}'.format(tunnel_name, port)
+            if type(port) == int:
+                print '[ {}OK{} ] {}:{}'.format(
+                    Fore.GREEN, Fore.RESET, tunnel_name, port)
             else:
-                print 'Could not start {}'.format(tunnel_name)
+                print '[ {}FAIL{} ] {} : {}'.format(
+                    Fore.RED, Fore.RESET, tunnel_name, port)
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 
@@ -87,9 +94,11 @@ def stop_call(name):
     try:
         for (tunnel_name, success) in tunneler.stop(name):
             if success:
-                print 'Stopped {}'.format(tunnel_name)
+                print '[ {}OK{} ] {}'.format(
+                    Fore.GREEN, Fore.RESET, tunnel_name)
             else:
-                print 'Problem stopping {}'.format(tunnel_name)
+                print '[ {}FAIL{} ] {}'.format(
+                    Fore.RED, Fore.RESET, tunnel_name)
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 

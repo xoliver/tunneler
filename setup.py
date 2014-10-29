@@ -15,7 +15,7 @@ setup(
     description='Tunnel manager',
     long_description=readme(),
     install_requires=[
-        'click', 'psutil'
+        'click', 'psutil', 'colorama',
     ],
     entry_points='''
         [console_scripts]
