@@ -110,6 +110,31 @@ class TunnelerTestCase(TestCase):
         with self.assertRaises(LookupError):
             self.tunneler.identify_tunnel('someserver.somewhere', 69)
 
+    def test_identify_groups(self):
+        group_config = {
+            'group1': ['tunnel1', 'tunnel2'],
+            'group2': ['tunnel3'],
+        }
+        self.tunneler.config = Configuration(
+            common={},
+            tunnels={},
+            groups=group_config,
+        )
+
+        result = self.tunneler.identify_group([])
+        self.assertEqual(result, [])
+
+        result = self.tunneler.identify_group(['tunnel1', 'tunnel2'])
+        self.assertEqual(result, ['group1'])
+
+        result = self.tunneler.identify_group(['tunnel1', 'tunnel4'])
+        self.assertEqual(result, [])
+
+        result = self.tunneler.identify_group(
+            ['tunnel1', 'tunnel2', 'tunnel3']
+        )
+        self.assertEqual(result, ['group1', 'group2'])
+
     def test_get_configured_tunnels(self):
         tunnel_config = {'a': None, 'b': None}
         self.tunneler.config = Configuration(

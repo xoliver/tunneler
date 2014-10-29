@@ -50,6 +50,20 @@ class Tunneler(object):
             return names
         raise LookupError()
 
+    def identify_group(self, tunnels):
+        """
+        Retrieve tunnel group containing all the specified named tunnels.
+
+        Return list of tunnel groups.
+        """
+        name_set = set(tunnels)
+        groups = []
+
+        for (group, contents) in self.config.groups.iteritems():
+            if set(contents).issubset(name_set):
+                groups.append(group)
+        return groups
+
     def get_configured_tunnels(self, filter_active=None):
         """
         Retrieve tunnels that are active, inactive or both.
