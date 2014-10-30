@@ -61,33 +61,34 @@ def stop(names):
     elif len(names) == 1 and names[0].lower() == 'all':
         for (name, result) in tunneler.stop_all_tunnels():
             if result:
-                print '[ {}OK{} ] {}'.format(
-                    Fore.GREEN, Fore.RESET, name)
+                print ok(name)
             else:
-                print '[ {}FAIL{} ] {}'.format(
-                    Fore.RED, Fore.RESET, name)
+                print fail(name)
     else:
         for name in names:
             stop_call(name)
 
 
-@cli.command(short_help='Show active tunnels')
-def show():
-    print_active_tunnels(tunneler.verbose)
-    print_inactive_tunnels()
-    print_active_groups()
-    print_inactive_groups()
+@cli.command(short_help='Show active/inactive (tunnels|groups|all)')
+@click.argument('what', nargs=1, default='all')
+def show(what):
+    if what in ('all', 'tunnels'):
+        print_active_tunnels(tunneler.verbose)
+        print_inactive_tunnels()
+    if what in ('all', 'groups'):
+        print_active_groups()
+        print_inactive_groups()
+    if what not in ('all', 'groups', 'tunnels'):
+        print 'No idea what {} is'.format(what)
 
 
 def start_call(name):
     try:
         for (tunnel_name, port) in tunneler.start(name):
             if type(port) == int:
-                print '[ {}OK{} ] {}:{}'.format(
-                    Fore.GREEN, Fore.RESET, tunnel_name, port)
+                print ok('{}:{}'.format(tunnel_name, port))
             else:
-                print '[ {}FAIL{} ] {} : {}'.format(
-                    Fore.RED, Fore.RESET, tunnel_name, port)
+                print fail('{} : {}'.format(tunnel_name, port))
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 
@@ -96,11 +97,9 @@ def stop_call(name):
     try:
         for (tunnel_name, success) in tunneler.stop(name):
             if success:
-                print '[ {}OK{} ] {}'.format(
-                    Fore.GREEN, Fore.RESET, tunnel_name)
+                print ok(tunnel_name)
             else:
-                print '[ {}FAIL{} ] {}'.format(
-                    Fore.RED, Fore.RESET, tunnel_name)
+                print fail(tunnel_name)
     except ConfigNotFound:
         print 'Tunnel config not found: {}'.format(name)
 
@@ -144,6 +143,27 @@ def print_inactive_groups():
             tunneler.get_configured_groups(filter_active=False))
     else:
         print 'No inactive groups'
+
+
+def _green(msg):
+    return _colour(msg, Fore.GREEN)
+
+
+def _red(msg):
+    return _colour(msg, Fore.RED)
+
+
+def _colour(msg, colour):
+    return '{}{}{}'.format(colour, msg, Fore.RESET)
+
+
+def ok(msg):
+    return '[ {} ] {}'.format(_green('OK'), msg)
+
+
+def fail(msg):
+    return '[ {} ] {}'.format(_red('FAIL'), msg)
+
 
 if __name__ == '__main__':
     cli(False)
