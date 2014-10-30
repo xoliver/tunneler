@@ -1,3 +1,6 @@
+"""
+Data storing entities.
+"""
 from collections import namedtuple
 
 
@@ -5,6 +8,10 @@ Configuration = namedtuple('ConfigTuple', ['common', 'tunnels', 'groups'])
 
 
 class Tunnel(object):
+
+    """
+    Class encapsulating tunnel data.
+    """
 
     def __init__(
             self, name='unnamed', process=None, local_port=0, remote_port=0,

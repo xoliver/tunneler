@@ -1,15 +1,20 @@
+"""
+Main entry point for tunneler.
+
+Handle command line parameters and output.
+"""
 from os.path import expanduser, join
 import sys
 
 import click
 from colorama import Fore
 
-from config import TunnelerConfigParser
-from tunneler import ConfigNotFound, Tunneler
-from process import ProcessHelper
+from .config import TunnelerConfigParser
+from .tunneler import ConfigNotFound, Tunneler
+from .process import ProcessHelper
 
 
-tunneler = None
+TUNNELER = None
 
 
 @click.group()
@@ -27,15 +32,15 @@ def cli(verbose):
         print '\n'.join(validation_errors)
         sys.exit(0)
 
-    global tunneler
-    tunneler = Tunneler(ProcessHelper(), config_parser.get_config(), verbose)
+    global TUNNELER
+    TUNNELER = Tunneler(ProcessHelper(), config_parser.get_config(), verbose)
 
 
 @cli.command(short_help='Check the state of a tunnel')
 @click.argument('name')
 def check(name):
     try:
-        if tunneler.is_tunnel_active(name):
+        if TUNNELER.is_tunnel_active(name):
             print 'Tunnel is active'
         else:
             print 'Tunnel is NOT active'
@@ -59,7 +64,7 @@ def stop(names):
     if not names:
         print_active_tunnels()
     elif len(names) == 1 and names[0].lower() == 'all':
-        for (name, result) in tunneler.stop_all_tunnels():
+        for (name, result) in TUNNELER.stop_all_tunnels():
             if result:
                 print ok(name)
             else:
@@ -73,7 +78,7 @@ def stop(names):
 @click.argument('what', nargs=1, default='all')
 def show(what):
     if what in ('all', 'tunnels'):
-        print_active_tunnels(tunneler.verbose)
+        print_active_tunnels(TUNNELER.verbose)
         print_inactive_tunnels()
     if what in ('all', 'groups'):
         print_active_groups()
@@ -84,7 +89,7 @@ def show(what):
 
 def start_call(name):
     try:
-        for (tunnel_name, port) in tunneler.start(name):
+        for (tunnel_name, port) in TUNNELER.start(name):
             if type(port) == int:
                 print ok('{}:{}'.format(tunnel_name, port))
             else:
@@ -95,7 +100,7 @@ def start_call(name):
 
 def stop_call(name):
     try:
-        for (tunnel_name, success) in tunneler.stop(name):
+        for (tunnel_name, success) in TUNNELER.stop(name):
             if success:
                 print ok(tunnel_name)
             else:
@@ -108,10 +113,10 @@ def print_active_tunnels(verbose=False):
     if verbose:
         active = [
             '{}:{}'.format(name, data['local_port'])
-            for (name, data) in tunneler.get_active_tunnels()
+            for (name, data) in TUNNELER.get_active_tunnels()
         ]
     else:
-        active = tunneler.get_configured_tunnels(filter_active=True)
+        active = TUNNELER.get_configured_tunnels(filter_active=True)
 
     if active:
         print 'Active:\t\t', ' '.join(sorted(active))
@@ -120,7 +125,7 @@ def print_active_tunnels(verbose=False):
 
 
 def print_inactive_tunnels():
-    inactive = tunneler.get_configured_tunnels(filter_active=False)
+    inactive = TUNNELER.get_configured_tunnels(filter_active=False)
 
     if inactive:
         print 'Inactive:\t', ' '.join(sorted(inactive))
@@ -129,7 +134,7 @@ def print_inactive_tunnels():
 
 
 def print_active_groups():
-    active = tunneler.get_configured_groups(filter_active=True)
+    active = TUNNELER.get_configured_groups(filter_active=True)
     if active:
         print 'Active groups:\t', ' '.join(active)
     else:
@@ -137,10 +142,10 @@ def print_active_groups():
 
 
 def print_inactive_groups():
-    inactive = tunneler.get_configured_groups(filter_active=False)
+    inactive = TUNNELER.get_configured_groups(filter_active=False)
     if inactive:
         print 'Inactive groups:\t', ' '.join(
-            tunneler.get_configured_groups(filter_active=False))
+            TUNNELER.get_configured_groups(filter_active=False))
     else:
         print 'No inactive groups'
 
