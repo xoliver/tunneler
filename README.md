@@ -35,14 +35,14 @@ Create file ~/.tunneler.cfg with something similar to this:
 Usage
 -----
 
-Usage: tunneler [OPTIONS] COMMAND [ARGS]...
+	Usage: tunneler [OPTIONS] COMMAND [ARGS]...
 
-Options:
-  --verbose  Show verbose information
-  --help     Show this message and exit.
+	Options:
+	  --verbose  Show verbose information
+	  --help     Show this message and exit.
 
-Commands:
-  check  Check the state of a tunnel
-  show   Show active/inactive (tunnels|groups|all)
-  start  Start one or more tunnels
-  stop   Stop one or more or ALL tunnels
+	Commands:
+	  check  Check the state of a tunnel
+	  show   Show active/inactive (tunnels|groups|all)
+	  start  Start one or more tunnels
+	  stop   Stop one or more or ALL tunnels
