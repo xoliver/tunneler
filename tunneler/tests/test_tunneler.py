@@ -43,6 +43,7 @@ class TunnelerTestCase(TestCase):
     def setUp(self):
         self.process_helper = Mock(ProcessHelper)
         self.tunnel_name = 'test_tunnel'
+        self.group_name = 'test_group'
         self.tunnel = Tunnel(
             name=self.tunnel_name,
             user='somebody',
@@ -58,11 +59,15 @@ class TunnelerTestCase(TestCase):
                 'remote_port': self.tunnel.remote_port,
             }
         }
+        group_config = {
+            self.group_name: [(self.tunnel_name, None)],
+        }
 
         self.config = Configuration(
             common={},
             tunnels=tunnel_config,
-            groups={})
+            groups=group_config
+        )
         self.empty_config = Configuration({}, {}, {})
 
         self.tunneler = Tunneler(self.process_helper, self.empty_config)
@@ -251,6 +256,34 @@ class TunnelerTestCase(TestCase):
         result = self.tunneler._start_tunnel(self.tunnel_name)
         self.assertEqual(result, [(self.tunnel_name, 'already running')])
 
+    def test_stop_with_tunnel(self):
+        self.tunneler.config = self.config
+        self.tunneler._start_group = Mock()
+        self.tunneler._start_tunnel = Mock()
+
+        self.tunneler.stop(self.tunnel_name)
+        self.assertFalse(self.tunneler._start_group.called)
+        self.assertTrue(self.tunneler._start_tunnel.called)
+
+    def test_stop_with_group(self):
+        self.tunneler.config = self.config
+        self.tunneler._start_group = Mock()
+        self.tunneler._start_tunnel = Mock()
+
+        self.tunneler.stop(self.group_name)
+        self.assertTrue(self.tunneler._start_group.called)
+        self.assertFalse(self.tunneler._start_tunnel.called)
+
+    def test_stop_group(self):
+        self.tunneler.config = self.config
+        self.tunneler._stop_tunnel = Mock(return_value=[True])
+
+        # Stop group is a generator!
+        result = list(self.tunneler._stop_group(self.group_name))
+
+        self.assertEqual(result, [True])
+        self.assertEqual(self.tunneler._stop_tunnel.call_count, 1)
+
     def test_stop_tunnel(self):
         self.tunneler.config = self.config
         self.tunneler.get_active_tunnel = Mock(return_value=object())
@@ -279,12 +312,12 @@ class TunnelerTestCase(TestCase):
         self.assertEqual(result, [(self.tunnel_name, False)])
 
     def test_stop_all_tunnels(self):
-        active_tunnels = [(self.tunnel_name, self.tunnel)]
+        active_tunnels = [(self.tunnel_name, self.tunnel), ('Unknown', None)]
         self.tunneler.get_active_tunnels = Mock(return_value=active_tunnels)
         self.tunneler._stop_tunnel = Mock(return_value='True')
 
         result = self.tunneler.stop_all_tunnels()
 
-        self.assertEqual(len(result), len(active_tunnels))
+        self.assertEqual(len(result), 1)
         self.assertEqual(
-            self.tunneler._stop_tunnel.call_count, len(active_tunnels))
+            self.tunneler._stop_tunnel.call_count, 1)
