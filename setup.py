@@ -7,7 +7,7 @@ def readme():
 
 setup(
     name='tunneler',
-    version='0.1',
+    version='0.2',
     packages=['tunneler'],
     author='Xavier Oliver',
     author_email='xoliver@gmail.com',
@@ -15,7 +15,7 @@ setup(
     description='Tunnel manager',
     long_description=readme(),
     install_requires=[
-        'click', 'psutil', 'colorama',
+        'click', 'colorama', 'psutil',
     ],
     entry_points='''
         [console_scripts]
