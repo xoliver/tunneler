@@ -10,8 +10,8 @@ default_user = YOUR_DEFAULT_USER
 [groups]
 # Multiple names are allowed. These must be defined in the file
 tunnel_group_1 =
-	tunnel1
-	tunnel2:port  # Specifying a local port here overrides the tunnel's default
+	TUNNEL-NAME
+	TUNNEL-NAME:port  # Specifying a local port here overrides the tunnel's default
 
 # Tunnel information - copy at will. 'user' is optional
 [TUNNEL-NAME]

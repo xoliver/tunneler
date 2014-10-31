@@ -75,7 +75,7 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
 
         Return list of error messages.
         """
-        if not hasattr(self, '_config'):
+        if self._config is None:
             self._create_config()
 
         results = []
