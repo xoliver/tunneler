@@ -42,16 +42,18 @@ class ProcessHelperTestCase(TestCase):
         self.assertFalse(result)
 
     # TODO fix these last two tests... they're stupid and I hate them
-    # def test_stop_success(self):
-    #     tunnel = Mock(Tunnel)
-    #     process_mock = Mock('process')
-    #     process_mock.terminate.return_value = None
-    #     tunnel.process = process_mock
+    def test_stop_success(self):
+        tunnel = Tunnel()
+        process_mock = Mock('process')
+        process_mock.terminate = Mock(return_value=None)
+        tunnel.process = process_mock
 
-    #     self.assertTrue(self.process_helper.stop_tunnel(tunnel))
+        self.assertTrue(self.process_helper.stop_tunnel(tunnel))
 
-    # def test_stop_failure(self):
-    #     tunnel = Mock(Tunnel)
-    #     tunnel.process.terminate.side_effect = Exception
+    def test_stop_failure(self):
+        tunnel = Tunnel()
+        process_mock = Mock('process')
+        process_mock.terminate = Mock(side_effect=Exception)
+        tunnel.process = process_mock
 
-    #     self.assertFalse(self.process_helper.stop_tunnel(tunnel))
+        self.assertFalse(self.process_helper.stop_tunnel(tunnel))
