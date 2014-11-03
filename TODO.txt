@@ -1,3 +1,1 @@
-TODO handle cases where two tunnels might have different names but be the same. Both names should appear on the list (separated by slashes) when reverse looking from a running process!
-TODO add tests for the updated situation
 TODO clean up error handling for name cases...

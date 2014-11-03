@@ -24,12 +24,12 @@ def cli(verbose):
     config_file = join(expanduser('~'), '.tunneler.cfg')
     config_parser = TunnelerConfigParser()
     if not config_parser.read(config_file):
-        print 'Could not find valid ~/.tunneler.cfg! - Aborting'
+        print('Could not find valid ~/.tunneler.cfg! - Aborting')
         sys.exit(0)
     validation_errors = config_parser.validate()
     if validation_errors:
-        print 'Problem loading ~/.tunneler.cfg :'
-        print '\n'.join(validation_errors)
+        print('Problem loading ~/.tunneler.cfg :')
+        print('\n'.join(validation_errors))
         sys.exit(0)
 
     global TUNNELER
@@ -41,11 +41,11 @@ def cli(verbose):
 def check(name):
     try:
         if TUNNELER.is_tunnel_active(name):
-            print 'Tunnel is active'
+            print('Tunnel is active')
         else:
-            print 'Tunnel is NOT active'
+            print('Tunnel is NOT active')
     except NameError:
-        print 'Unknown tunnel'
+        print('Unknown tunnel')
 
 
 @cli.command(short_help='Start one or more tunnels')
@@ -66,9 +66,9 @@ def stop(names):
     elif len(names) == 1 and names[0].lower() == 'all':
         for (name, result) in TUNNELER.stop_all_tunnels():
             if result:
-                print ok(name)
+                print(ok(name))
             else:
-                print fail(name)
+                print(fail(name))
     else:
         for name in names:
             stop_call(name)
@@ -84,29 +84,29 @@ def show(what):
         print_active_groups()
         print_inactive_groups()
     if what not in ('all', 'groups', 'tunnels'):
-        print 'No idea what {} is'.format(what)
+        print('No idea what {} is'.format(what))
 
 
 def start_call(name):
     try:
         for (tunnel_name, port) in TUNNELER.start(name):
             if type(port) == int:
-                print ok('{}:{}'.format(tunnel_name, port))
+                print(ok('{}:{}'.format(tunnel_name, port)))
             else:
-                print fail('{} : {}'.format(tunnel_name, port))
+                print(fail('{} : {}'.format(tunnel_name, port)))
     except ConfigNotFound:
-        print 'Tunnel config not found: {}'.format(name)
+        print('Tunnel config not found: {}'.format(name))
 
 
 def stop_call(name):
     try:
         for (tunnel_name, success) in TUNNELER.stop(name):
             if success:
-                print ok(tunnel_name)
+                print(ok(tunnel_name))
             else:
-                print fail(tunnel_name)
+                print(fail(tunnel_name))
     except ConfigNotFound:
-        print 'Tunnel config not found: {}'.format(name)
+        print('Tunnel config not found: {}'.format(name))
 
 
 def print_active_tunnels(verbose=False):
@@ -119,35 +119,37 @@ def print_active_tunnels(verbose=False):
         active = TUNNELER.get_configured_tunnels(filter_active=True)
 
     if active:
-        print 'Active:\t\t', ' '.join(sorted(active))
+        print('Active:\t\t', ' '.join(sorted(active)))
     else:
-        print 'No active tunnels'
+        print('No active tunnels')
 
 
 def print_inactive_tunnels():
     inactive = TUNNELER.get_configured_tunnels(filter_active=False)
 
     if inactive:
-        print 'Inactive:\t', ' '.join(sorted(inactive))
+        print('Inactive:\t', ' '.join(sorted(inactive)))
     else:
-        print 'No inactive tunnels'
+        print('No inactive tunnels')
 
 
 def print_active_groups():
     active = TUNNELER.get_configured_groups(filter_active=True)
     if active:
-        print 'Active groups:\t', ' '.join(active)
+        print('Active groups:\t', ' '.join(active))
     else:
-        print 'No active groups'
+        print('No active groups')
 
 
 def print_inactive_groups():
     inactive = TUNNELER.get_configured_groups(filter_active=False)
     if inactive:
-        print 'Inactive groups:\t', ' '.join(
-            TUNNELER.get_configured_groups(filter_active=False))
+        print (
+            'Inactive groups:\t', ' '.join(
+                TUNNELER.get_configured_groups(filter_active=False))
+        )
     else:
-        print 'No inactive groups'
+        print('No inactive groups')
 
 
 def _green(msg):
