@@ -258,21 +258,21 @@ class TunnelerTestCase(TestCase):
 
     def test_stop_with_tunnel(self):
         self.tunneler.config = self.config
-        self.tunneler._start_group = Mock()
-        self.tunneler._start_tunnel = Mock()
+        self.tunneler._stop_group = Mock()
+        self.tunneler._stop_tunnel = Mock()
 
         self.tunneler.stop(self.tunnel_name)
-        self.assertFalse(self.tunneler._start_group.called)
-        self.assertTrue(self.tunneler._start_tunnel.called)
+        self.assertFalse(self.tunneler._stop_group.called)
+        self.assertTrue(self.tunneler._stop_tunnel.called)
 
     def test_stop_with_group(self):
         self.tunneler.config = self.config
-        self.tunneler._start_group = Mock()
-        self.tunneler._start_tunnel = Mock()
+        self.tunneler._stop_group = Mock()
+        self.tunneler._stop_tunnel = Mock()
 
         self.tunneler.stop(self.group_name)
-        self.assertTrue(self.tunneler._start_group.called)
-        self.assertFalse(self.tunneler._start_tunnel.called)
+        self.assertTrue(self.tunneler._stop_group.called)
+        self.assertFalse(self.tunneler._stop_tunnel.called)
 
     def test_stop_group(self):
         self.tunneler.config = self.config
