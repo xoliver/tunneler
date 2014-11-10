@@ -3,6 +3,7 @@ Main entry point for tunneler.
 
 Handle command line parameters and output.
 """
+from __future__ import print_function
 from os.path import expanduser, join
 import sys
 
