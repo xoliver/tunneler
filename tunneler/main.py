@@ -8,11 +8,11 @@ from os.path import expanduser, join
 import sys
 
 import click
-from colorama import Fore
 
 from .config import TunnelerConfigParser
 from .tunneler import ConfigNotFound, Tunneler
 from .process import ProcessHelper
+from .utils import (fail, ok)
 
 
 TUNNELER = None
@@ -151,26 +151,6 @@ def print_inactive_groups():
         )
     else:
         print('No inactive groups')
-
-
-def _green(msg):
-    return _colour(msg, Fore.GREEN)
-
-
-def _red(msg):
-    return _colour(msg, Fore.RED)
-
-
-def _colour(msg, colour):
-    return '{}{}{}'.format(colour, msg, Fore.RESET)
-
-
-def ok(msg):
-    return '[ {} ] {}'.format(_green('OK'), msg)
-
-
-def fail(msg):
-    return '[ {} ] {}'.format(_red('FAIL'), msg)
 
 
 if __name__ == '__main__':
