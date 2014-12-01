@@ -6,11 +6,6 @@ import ConfigParser
 from .models import Configuration
 
 
-DEFAULT_USER = 'mr-x'
-
-DEFAULT_COMMON_CONFIG = {'default_user': DEFAULT_USER}
-
-
 class TunnelerConfigParser(ConfigParser.ConfigParser):
 
     """
@@ -43,7 +38,7 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
         Return Configuration.
         """
         data = self._as_dict()
-        common = data.pop('common', DEFAULT_COMMON_CONFIG)
+        common = data.pop('common', {})
         groups = data.pop('groups', {})
 
         for (name, value) in groups.items():
@@ -75,20 +70,19 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
 
         Return list of error messages.
         """
-        if self._config is None:
-            self._create_config()
+        config = self.get_config()
 
         results = []
 
-        for group_name, group_tunnels in self._config.groups.items():
+        for group_name, group_tunnels in config.groups.items():
             for (tunnel, _) in group_tunnels:
-                if tunnel not in self._config.tunnels:
+                if tunnel not in config.tunnels:
                     results.append(
                         '[{}] tunnel {} undefined'.format(
                             group_name, tunnel
                         )
                     )
-            if group_name in self._config.tunnels:
+            if group_name in config.tunnels:
                 results.append(
                     'Found one group and a tunnel called the same: {}'.format(
                         group_name

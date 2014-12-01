@@ -18,6 +18,7 @@ from .utils import (fail, ok)
 
 
 TUNNELER = None
+DEFAULT_USER = 'nobody'
 
 
 @click.group()
@@ -185,6 +186,9 @@ def combine_configs(configs):
         combined_config.common.update(config.common)
         combined_config.tunnels.update(config.tunnels)
         combined_config.groups.update(config.groups)
+
+    if config.common.get('default_user') is None:
+        config.common['default_user'] = DEFAULT_USER
 
     return combined_config
 
