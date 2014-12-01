@@ -246,15 +246,12 @@ class TunnelerTestCase(TestCase):
         self.tunneler.get_active_tunnel = Mock(side_effect=NameError)
         self.process_helper.start_tunnel = Mock(return_value=False)
 
-        result = self.tunneler._start_tunnel(self.tunnel_name)
-        self.assertEquals(
-            result,
-            [
-                (
-                    self.tunnel_name,
-                    'somebody@somewhere - local:2323 - remote:3434'
-                )
-            ]
+        [(name, result)] = self.tunneler._start_tunnel(self.tunnel_name)
+        self.assertEquals(name, self.tunnel_name)
+        self.assertTrue(
+            'somebody@somewhere' in result
+            and '2323' in result
+            and '3434' in result
         )
 
     def test_start_tunnel_if_already_active(self):
