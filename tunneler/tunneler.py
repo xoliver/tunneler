@@ -203,7 +203,17 @@ class Tunneler(object):
         if success:
             return [(name, local_port)]
         else:
-            return [(name, None)]
+            return [
+                (
+                    name,
+                    '{user}@{server} - local:{local} - remote:{remote}'.format(
+                        user=user_name,
+                        server=data['server'],
+                        local=local_port,
+                        remote=data['remote_port'],
+                    )
+                )
+            ]
 
     @check_name_exists
     def stop(self, name):

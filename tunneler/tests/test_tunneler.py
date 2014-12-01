@@ -247,7 +247,10 @@ class TunnelerTestCase(TestCase):
         self.process_helper.start_tunnel = Mock(return_value=False)
 
         result = self.tunneler._start_tunnel(self.tunnel_name)
-        self.assertEquals(result, [(self.tunnel_name, None)])
+        self.assertEquals(
+            result,
+            [(self.tunnel_name, 'somebody@somewhere 2323->3434')]
+        )
 
     def test_start_tunnel_if_already_active(self):
         self.tunneler.config = self.config

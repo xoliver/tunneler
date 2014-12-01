@@ -97,11 +97,11 @@ def show(what):
 
 def start_call(name):
     try:
-        for (tunnel_name, port) in TUNNELER.start(name):
-            if type(port) == int:
-                print(ok('{}:{}'.format(tunnel_name, port)))
+        for (tunnel_name, result) in TUNNELER.start(name):
+            if type(result) == int:
+                print(ok('{}:{}'.format(tunnel_name, result)))
             else:
-                print(fail('{} : {}'.format(tunnel_name, port)))
+                print(fail('{} : {}'.format(tunnel_name, result)))
     except ConfigNotFound:
         print('Tunnel config not found: {}'.format(name))
 
