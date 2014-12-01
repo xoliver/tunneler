@@ -249,7 +249,12 @@ class TunnelerTestCase(TestCase):
         result = self.tunneler._start_tunnel(self.tunnel_name)
         self.assertEquals(
             result,
-            [(self.tunnel_name, 'somebody@somewhere 2323->3434')]
+            [
+                (
+                    self.tunnel_name,
+                    'somebody@somewhere - local:2323 - remote:3434'
+                )
+            ]
         )
 
     def test_start_tunnel_if_already_active(self):
