@@ -85,11 +85,13 @@ class TunnelerConfigParser(ConfigParser.ConfigParser):
                 if tunnel not in self._config.tunnels:
                     results.append(
                         '[{}] tunnel {} undefined'.format(
-                            group_name, tunnel)
+                            group_name, tunnel
+                        )
                     )
             if group_name in self._config.tunnels:
                 results.append(
                     'Found one group and a tunnel called the same: {}'.format(
-                        group_name)
+                        group_name
+                    )
                 )
         return results

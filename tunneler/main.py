@@ -4,12 +4,14 @@ Main entry point for tunneler.
 Handle command line parameters and output.
 """
 from __future__ import print_function
+import os
 from os.path import expanduser, join
 import sys
 
 import click
 
 from .config import TunnelerConfigParser
+from .models import Configuration
 from .tunneler import ConfigNotFound, Tunneler
 from .process import ProcessHelper
 from .utils import (fail, ok)
@@ -21,20 +23,24 @@ TUNNELER = None
 @click.group()
 @click.option('--verbose', is_flag=True, help='Show verbose information')
 def cli(verbose):
-    # Load settings first
-    config_file = join(expanduser('~'), '.tunneler.cfg')
-    config_parser = TunnelerConfigParser()
-    if not config_parser.read(config_file):
-        print('Could not find valid ~/.tunneler.cfg! - Aborting')
-        sys.exit(0)
-    validation_errors = config_parser.validate()
-    if validation_errors:
-        print('Problem loading ~/.tunneler.cfg :')
-        print('\n'.join(validation_errors))
+    # Load configurations
+    local_config_file = join(os.getcwd(), 'tunnels.cfg')
+    local_config = load_config(local_config_file)
+
+    global_config_file = join(expanduser('~'), '.tunneler.cfg')
+    global_config = load_config(global_config_file)
+
+    if not local_config and not global_config:
+        print(
+            'Could not find tunneler.cfg in this folder or .tunneler.cfg '
+            'in your home folder!'
+        )
         sys.exit(0)
 
+    config = combine_configs([global_config, local_config])
+
     global TUNNELER
-    TUNNELER = Tunneler(ProcessHelper(), config_parser.get_config(), verbose)
+    TUNNELER = Tunneler(ProcessHelper(), config, verbose)
 
 
 @cli.command(short_help='Check the state of a tunnel')
@@ -151,6 +157,36 @@ def print_inactive_groups():
         )
     else:
         print('No inactive groups')
+
+
+def load_config(file_path):
+    config_parser = TunnelerConfigParser()
+    if not config_parser.read(file_path):
+        return None
+
+    validation_errors = config_parser.validate()
+    if validation_errors:
+        print('Problem loading {} :'.format(file_path))
+        print('\n'.join(validation_errors))
+        sys.exit(0)
+
+    return config_parser.get_config()
+
+
+def combine_configs(configs):
+    """
+    Generate a combined Configuration by overwriting earlier list elements.
+    """
+    combined_config = Configuration(common={}, tunnels={}, groups={})
+
+    for config in configs:
+        if not config:
+            continue
+        combined_config.common.update(config.common)
+        combined_config.tunnels.update(config.tunnels)
+        combined_config.groups.update(config.groups)
+
+    return combined_config
 
 
 if __name__ == '__main__':

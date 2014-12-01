@@ -1,5 +1,7 @@
 # Sample configuration file
-# Copy to ~/.tunneler.cfg and adapt
+# Copy to ~/.tunneler.cfg or to any folder as tunnels.cfg and adapt
+#
+# NOTE: current folder settings will always overwrite home folder ones
 
 # Common settings section (optional)
 [common]

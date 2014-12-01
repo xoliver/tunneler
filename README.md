@@ -6,10 +6,11 @@ Stuff to make stuff tunnels with stuff
 Configuration
 -------------
 
-Create file ~/.tunneler.cfg with something similar to this:
+You need to either have a tunnels.cfg file in your directory or a .tunneler.cfg in your home folder.
 
-	# Sample configuration file
-	# Copy to ~/.tunneler.cfg and adapt
+If you have both then the current directory (local) settings will override the home folder's (global).
+
+Create ~/.tunneler.cfg or tunnels.cfg with something similar to this:
 
 	# Common settings section (optional)
 	[common]
