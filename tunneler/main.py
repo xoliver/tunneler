@@ -187,8 +187,8 @@ def combine_configs(configs):
         combined_config.tunnels.update(config.tunnels)
         combined_config.groups.update(config.groups)
 
-    if config.common.get('default_user') is None:
-        config.common['default_user'] = DEFAULT_USER
+    if combined_config.common.get('default_user') is None:
+        combined_config.common['default_user'] = DEFAULT_USER
 
     return combined_config
 
