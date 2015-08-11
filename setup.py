@@ -7,7 +7,7 @@ def readme():
 
 setup(
     name='tunneler',
-    version='0.3.1',
+    version='0.4.0',
     packages=['tunneler'],
     author='Xavier Oliver',
     author_email='xoliver@gmail.com',

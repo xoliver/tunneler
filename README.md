@@ -43,7 +43,8 @@ Usage
 	  --help     Show this message and exit.
 
 	Commands:
-	  check  Check the state of a tunnel
-	  show   Show active/inactive (tunnels|groups|all)
-	  start  Start one or more tunnels
-	  stop   Stop one or more or ALL tunnels
+	  check    Check the state of a tunnel
+	  restart  Stop and start specific or all active tunnels
+	  show     Show active/inactive (tunnels|groups|all)
+	  start    Start one or more tunnels
+	  stop     Stop one or more or ALL tunnels
