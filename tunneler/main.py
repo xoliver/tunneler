@@ -82,6 +82,19 @@ def stop(names):
             stop_call(name)
 
 
+@cli.command(short_help='Stop and start specific or all active tunnels')
+@click.argument('names', nargs=-1)
+def restart(names):
+    if not names:
+        for (tunnel_name, _) in TUNNELER.get_active_tunnels():
+            stop_call(tunnel_name)
+            start_call(tunnel_name)
+    else:
+        for name in names:
+            stop_call(name)
+            start_call(name)
+
+
 @cli.command(short_help='Show active/inactive (tunnels|groups|all)')
 @click.argument('what', nargs=1, default='all')
 def show(what):
