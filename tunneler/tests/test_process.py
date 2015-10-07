@@ -57,3 +57,13 @@ class ProcessHelperTestCase(TestCase):
         tunnel.process = process_mock
 
         self.assertFalse(self.process_helper.stop_tunnel(tunnel))
+
+    @patch('tunneler.process.call')
+    def test_debug_level_0(self, call_mock):
+        self.process_helper.start_tunnel('user', 'server', 1212, 3434, ssh_debug_level=0)
+        call_mock.assert_called_once_with(['ssh', '-g', '-f', '-N', '-L1212:localhost:3434', 'user@server'])
+
+    @patch('tunneler.process.call')
+    def test_debug_level_2(self, call_mock):
+        self.process_helper.start_tunnel('user', 'server', 1212, 3434, ssh_debug_level=2)
+        call_mock.assert_called_once_with(['ssh', '-g', '-f', '-N', '-v', '-v', '-L1212:localhost:3434', 'user@server'])

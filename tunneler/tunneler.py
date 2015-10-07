@@ -30,10 +30,11 @@ class Tunneler(object):
     Class to handle tunnel operations at a higher level.
     """
 
-    def __init__(self, process_helper, config, verbose=False):
+    def __init__(self, process_helper, config, verbose=False, ssh_debug_level=0):
         self.process_helper = process_helper
         self.config = config
         self.verbose = verbose
+        self.ssh_debug_level = ssh_debug_level
 
     def identify_tunnel(self, server, remote_port):
         """
@@ -197,7 +198,8 @@ class Tunneler(object):
             user=user_name,
             server=data['server'],
             local_port=local_port,
-            remote_port=data['remote_port']
+            remote_port=data['remote_port'],
+            ssh_debug_level=self.ssh_debug_level
         )
 
         if success:
