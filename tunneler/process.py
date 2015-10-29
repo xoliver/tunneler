@@ -15,8 +15,9 @@ LOGIN_MATCHER = re.compile(r'.* ([^@]+)@([^ ]+).*')
 # -g allow remote host to connect to local port
 # -f go to background
 # -o StrictHostKeyChecking=no
+SSH_DEBUG_STRING = "-v "
 START_COMMAND = \
-    'ssh -g -f -N -L{local_port}:localhost:{remote_port} {user}@{server}'
+    'ssh -g -f -N {debug_options}-L{local_port}:localhost:{remote_port} {user}@{server}'
 
 
 class ProcessHelper(object):
@@ -62,17 +63,19 @@ class ProcessHelper(object):
 
         return int(local_port), int(remote_port), user, server
 
-    def start_tunnel(self, user, server, local_port, remote_port):
+    def start_tunnel(self, user, server, local_port, remote_port, ssh_debug_level=0):
         """
         Launch a tunnel based on the specified parameters.
 
         Return boolean with result of call.
         """
+        debug_options = SSH_DEBUG_STRING * ssh_debug_level
         command = START_COMMAND.format(
             user=user,
             server=server,
             local_port=local_port,
-            remote_port=remote_port
+            remote_port=remote_port,
+            debug_options=debug_options
         )
         return call(command.split()) == 0
 

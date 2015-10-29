@@ -23,7 +23,8 @@ DEFAULT_USER = 'nobody'
 
 @click.group()
 @click.option('--verbose', is_flag=True, help='Show verbose information')
-def cli(verbose):
+@click.option('--ssh-debug-level', default=0, type=int, help='Show ssh debug information')
+def cli(verbose, ssh_debug_level):
     # Load configurations
     local_config_file = join(os.getcwd(), 'tunnels.cfg')
     local_config = load_config(local_config_file)
@@ -41,7 +42,7 @@ def cli(verbose):
     config = combine_configs([global_config, local_config])
 
     global TUNNELER
-    TUNNELER = Tunneler(ProcessHelper(), config, verbose)
+    TUNNELER = Tunneler(ProcessHelper(), config, verbose, ssh_debug_level)
 
 
 @cli.command(short_help='Check the state of a tunnel')
