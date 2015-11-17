@@ -25,12 +25,14 @@ Create ~/.tunneler.cfg or tunnels.cfg with something similar to this:
 			tunnel2:port  # Specifying a local port here overrides the tunnel's default
 
 	# Tunnel information - copy at will. 'user' is optional
+	# This translates to ssh -g -f -N -L{local_port}:{host}:{remote_port} {user}@{server}
 	[TUNNEL-NAME]
 	name = TUNNEL_LONG_NAME
 	local_port = LOCAL_MACHINE_PORT
 	remote_port = SERVER_PORT
 	server = SERVER_NAME
-	user = OPTIONAL_USER_NAME
+	user = OPTIONAL_USER_NAME # defaults to common's default_user
+	host = OPTIONAL_HOST # defaults to localhost
 
 
 Usage

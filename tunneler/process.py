@@ -9,7 +9,7 @@ import psutil
 
 from .models import Tunnel
 
-PORT_MATCHER = re.compile(r'.*-L(\d+):localhost:(\d+).*')
+PORT_MATCHER = re.compile(r'.*-L(\d+):([^ ]+):(\d+).*')
 LOGIN_MATCHER = re.compile(r'.* ([^@]+)@([^ ]+).*')
 
 # -g allow remote host to connect to local port
@@ -17,7 +17,7 @@ LOGIN_MATCHER = re.compile(r'.* ([^@]+)@([^ ]+).*')
 # -o StrictHostKeyChecking=no
 SSH_DEBUG_STRING = "-v "
 START_COMMAND = \
-    'ssh -g -f -N {debug_options}-L{local_port}:localhost:{remote_port} {user}@{server}'
+    'ssh -g -f -N {debug_options}-L{local_port}:{host}:{remote_port} {user}@{server}'
 
 
 class ProcessHelper(object):
@@ -36,7 +36,7 @@ class ProcessHelper(object):
                 if process.name() == 'ssh' and '-N' in process.cmdline():
                     try:
                         command = ' '.join(process.cmdline())
-                        local_port, remote_port, user, server = \
+                        local_port, host, remote_port, user, server = \
                             self.extract_tunnel_info(command)
                     except AttributeError:
                         pass
@@ -45,6 +45,7 @@ class ProcessHelper(object):
                             'unidentified',
                             process,
                             local_port,
+                            host,
                             remote_port,
                             user,
                             server,
@@ -58,12 +59,12 @@ class ProcessHelper(object):
 
         Return local port, remote port, user, server
         """
-        (local_port, remote_port) = PORT_MATCHER.match(line).groups()
+        (local_port, host, remote_port) = PORT_MATCHER.match(line).groups()
         (user, server) = LOGIN_MATCHER.match(line).groups()
 
-        return int(local_port), int(remote_port), user, server
+        return int(local_port), host, int(remote_port), user, server
 
-    def start_tunnel(self, user, server, local_port, remote_port, ssh_debug_level=0):
+    def start_tunnel(self, user, server, local_port, host, remote_port, ssh_debug_level=2):
         """
         Launch a tunnel based on the specified parameters.
 
@@ -74,6 +75,7 @@ class ProcessHelper(object):
             user=user,
             server=server,
             local_port=local_port,
+            host=host,
             remote_port=remote_port,
             debug_options=debug_options
         )

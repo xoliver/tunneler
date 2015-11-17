@@ -188,8 +188,8 @@ class Tunneler(object):
         except NameError:
             pass
 
-        user_name = data['user'] if 'user' in data \
-            else self.config.common['default_user']
+        user_name = data.get('user', self.config.common['default_user'])
+        host = data.get('host', 'localhost')
 
         local_port = local_port_override \
             if local_port_override is not None else data['local_port']
@@ -198,6 +198,7 @@ class Tunneler(object):
             user=user_name,
             server=data['server'],
             local_port=local_port,
+            host=host,
             remote_port=data['remote_port'],
             ssh_debug_level=self.ssh_debug_level
         )
@@ -208,10 +209,11 @@ class Tunneler(object):
             return [
                 (
                     name,
-                    '{user}@{server} - local:{local} - remote:{remote}'.format(
+                    '{user}@{server} - local:{local} - host:{host} - remote:{remote}'.format(
                         user=user_name,
                         server=data['server'],
                         local=local_port,
+                        host=host,
                         remote=data['remote_port'],
                     )
                 )

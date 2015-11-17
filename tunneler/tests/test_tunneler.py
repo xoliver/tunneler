@@ -64,7 +64,7 @@ class TunnelerTestCase(TestCase):
         }
 
         self.config = Configuration(
-            common={},
+            common={'default_user': 'testuser'},
             tunnels=tunnel_config,
             groups=group_config
         )

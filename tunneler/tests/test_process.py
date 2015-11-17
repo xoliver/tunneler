@@ -12,7 +12,7 @@ class ProcessHelperTestCase(TestCase):
 
     def test_process_line_to_tunnel_ok(self):
         line = '-N -L2323:localhost:4545 hiyou@aserver.aplace.net'
-        expected = (2323, 4545, 'hiyou', 'aserver.aplace.net')
+        expected = (2323, 'localhost', 4545, 'hiyou', 'aserver.aplace.net')
 
         self.assertEqual(
             self.process_helper.extract_tunnel_info(line),
@@ -30,7 +30,7 @@ class ProcessHelperTestCase(TestCase):
         call_mock.return_value = 0
 
         result = self.process_helper.start_tunnel(
-            'user', 'server', 1212, 3434)
+            'user', 'server', 1212, 'localhost', 3434)
         self.assertTrue(result)
 
     @patch('tunneler.process.call')
@@ -38,7 +38,7 @@ class ProcessHelperTestCase(TestCase):
         call_mock.return_value = 13
 
         result = self.process_helper.start_tunnel(
-            'user', 'server', 1212, 3434)
+            'user', 'server', 1212, 'localhost', 3434)
         self.assertFalse(result)
 
     # TODO fix these last two tests... they're stupid and I hate them
@@ -60,10 +60,10 @@ class ProcessHelperTestCase(TestCase):
 
     @patch('tunneler.process.call')
     def test_debug_level_0(self, call_mock):
-        self.process_helper.start_tunnel('user', 'server', 1212, 3434, ssh_debug_level=0)
+        self.process_helper.start_tunnel('user', 'server', 1212, 'localhost', 3434, ssh_debug_level=0)
         call_mock.assert_called_once_with(['ssh', '-g', '-f', '-N', '-L1212:localhost:3434', 'user@server'])
 
     @patch('tunneler.process.call')
     def test_debug_level_2(self, call_mock):
-        self.process_helper.start_tunnel('user', 'server', 1212, 3434, ssh_debug_level=2)
+        self.process_helper.start_tunnel('user', 'server', 1212, 'localhost', 3434, ssh_debug_level=2)
         call_mock.assert_called_once_with(['ssh', '-g', '-f', '-N', '-v', '-v', '-L1212:localhost:3434', 'user@server'])
