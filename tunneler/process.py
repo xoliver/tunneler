@@ -50,7 +50,7 @@ class ProcessHelper(object):
                             user,
                             server,
                         )
-            except psutil.AccessDenied:
+            except (psutil.AccessDenied, psutil.ZombieProcess):
                 pass
 
     def extract_tunnel_info(self, line):
