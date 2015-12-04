@@ -199,6 +199,17 @@ class TunnelerTestCase(TestCase):
         with self.assertRaises(NameError):
             self.tunneler.get_active_tunnel('idonotexist')
 
+    def test_use_remote_port_when_local_port_not_in_config(self):
+        del self.config.tunnels[self.tunnel_name]['local_port']
+        self.assertIsNone(
+            self.config.tunnels[self.tunnel_name].get('local_port')
+        )
+        tunneler = Tunneler(self.process_helper, self.config)
+        self.assertEqual(
+            tunneler.config.tunnels[self.tunnel_name]['local_port'],
+            tunneler.config.tunnels[self.tunnel_name]['remote_port']
+        )
+
     def test_is_tunnel_active(self):
         tunnel_config = {'server1': None, 'server2': None}
         self.tunneler.config = Configuration(

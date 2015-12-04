@@ -33,8 +33,20 @@ class Tunneler(object):
     def __init__(self, process_helper, config, verbose=False, ssh_debug_level=0):
         self.process_helper = process_helper
         self.config = config
+        self._apply_defaults()
         self.verbose = verbose
         self.ssh_debug_level = ssh_debug_level
+
+    def _apply_defaults(self):
+        """
+        Mutate the config to apply default rules.
+
+        Return None.
+        """
+        for tunnel, info in self.config.tunnels.iteritems():
+            # Fall back to remote_port if local_port is not defined
+            if info.get('local_port', None) is None:
+                info['local_port'] = info['remote_port']
 
     def identify_tunnel(self, server, remote_port):
         """

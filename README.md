@@ -28,7 +28,7 @@ Create ~/.tunneler.cfg or tunnels.cfg with something similar to this:
 	# This translates to ssh -g -f -N -L{local_port}:{host}:{remote_port} {user}@{server}
 	[TUNNEL-NAME]
 	name = TUNNEL_LONG_NAME
-	local_port = LOCAL_MACHINE_PORT
+	local_port = LOCAL_MACHINE_PORT # defaults to remote_port
 	remote_port = SERVER_PORT
 	server = SERVER_NAME
 	user = OPTIONAL_USER_NAME # defaults to common's default_user
