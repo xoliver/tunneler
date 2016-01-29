@@ -72,7 +72,7 @@ class Tunneler(object):
 
         Return list of tunnel names.
         """
-        tunnels = self.config.tunnels.keys()
+        tunnels = sorted(self.config.tunnels.keys())
         if filter_active is None:
             return tunnels
         elif filter_active:

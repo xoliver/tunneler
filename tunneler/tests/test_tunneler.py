@@ -149,7 +149,7 @@ class TunnelerTestCase(TestCase):
         )
 
         configured_tunnels = self.tunneler.get_configured_tunnels()
-        self.assertEqual(configured_tunnels, tunnel_config.keys())
+        self.assertEqual(set(configured_tunnels), set(tunnel_config.keys()))
 
     def test_get_configured_tunnels_with_filtering(self):
         tunnel_config = {'a': None, 'b': None}
