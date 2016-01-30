@@ -1,6 +1,6 @@
-recursive-include * *.md
-recursive-include * *.rst
-recursive-include * *.txt
+include *.md
+include *.rst
+include *.txt
 
 recursive-include tests *
 recursive-exclude * __pycache__
