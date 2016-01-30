@@ -1,12 +1,15 @@
 """
 Custom configuration file parser.
 """
-import ConfigParser
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser as ConfigParser
 
 from .models import Configuration
 
 
-class TunnelerConfigParser(ConfigParser.ConfigParser):
+class TunnelerConfigParser(ConfigParser):
 
     """
     Custom ConfigParser that allows the retrieval of config as a dictionary,
