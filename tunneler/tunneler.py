@@ -43,7 +43,7 @@ class Tunneler(object):
         Return list of tunnel names.
         """
         names = []
-        for (name, tunnel) in self.config.tunnels.iteritems():
+        for (name, tunnel) in self.config.tunnels.items():
             if tunnel['server'] == server \
                     and tunnel['remote_port'] == remote_port:
                 names.append(name)
@@ -60,7 +60,7 @@ class Tunneler(object):
         name_set = set(tunnels)
         groups = []
 
-        for (group, contents) in self.config.groups.iteritems():
+        for (group, contents) in sorted(self.config.groups.items()):
             group_names = set(g[0] for g in contents)
             if group_names.issubset(name_set):
                 groups.append(group)
