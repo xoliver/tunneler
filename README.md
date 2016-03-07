@@ -50,3 +50,9 @@ Usage
 	  show     Show active/inactive (tunnels|groups|all)
 	  start    Start one or more tunnels
 	  stop     Stop one or more or ALL tunnels
+
+
+License
+-------
+
+Tunneler is licensed under the [BSD License](LICENSE)
