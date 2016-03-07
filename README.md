@@ -55,4 +55,4 @@ Usage
 License
 -------
 
-Tunneler is licensed under the [BSD License](LICENSE)
+Tunneler is licensed under the [BSD ISC License](LICENSE)
