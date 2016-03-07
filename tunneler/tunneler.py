@@ -19,6 +19,7 @@ def check_name_exists(func):
     def wrap(obj, name):
         "Das wrapper."
         if name not in obj.config.tunnels and name not in obj.config.groups:
+            print(obj.config.tunnels, obj.config.groups)
             raise ConfigNotFound()
         else:
             return func(obj, name)
@@ -94,7 +95,7 @@ class Tunneler(object):
         """
         groups = self.config.groups.keys()
         if filter_active is None:
-            return groups
+            return list(groups)
         else:
             tunnels = self.get_configured_tunnels(filter_active)
             return self.identify_group(tunnels)
