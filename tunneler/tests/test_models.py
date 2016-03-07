@@ -1,3 +1,3 @@
 from unittest import TestCase
 
-from ..models import *
+from ..models import Tunnel
