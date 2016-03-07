@@ -1,7 +1,7 @@
 import os.path
 from unittest import TestCase
 
-from ..config import *
+from ..config import TunnelerConfigParser
 
 
 def _config_path(name):

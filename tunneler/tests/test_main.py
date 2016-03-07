@@ -1,3 +1,3 @@
 from unittest import TestCase
 
-from ..main import *
+from ..main import cli
