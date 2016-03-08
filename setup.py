@@ -17,7 +17,7 @@ setup(
     install_requires=[
         'click',
         'colorama',
-        'psutil',
+        'psutil>=3.0.0',
     ],
     entry_points='''
         [console_scripts]
