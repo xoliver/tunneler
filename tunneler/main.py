@@ -24,6 +24,7 @@ DEFAULT_USER = 'nobody'
 @click.group()
 @click.option('--verbose', is_flag=True, help='Show verbose information')
 @click.option('--ssh-debug-level', default=0, type=int, help='Show ssh debug information')
+@click.version_option()
 def cli(verbose, ssh_debug_level):
     # Load configurations
     local_config_file = join(os.getcwd(), 'tunnels.cfg')
