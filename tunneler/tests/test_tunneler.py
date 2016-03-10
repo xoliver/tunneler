@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from mock import Mock
+from mock import Mock, patch
 
 from ..models import Configuration, Tunnel
 from ..process import ProcessHelper
@@ -9,6 +9,10 @@ from ..tunneler import (
     Tunneler,
     check_name_exists,
 )
+
+
+def is_tunnel_active_stub(name):
+    return name.startswith('active')
 
 
 class CheckTunnelExistsTestCase(TestCase):
@@ -68,9 +72,82 @@ class TunnelerTestCase(TestCase):
             tunnels=tunnel_config,
             groups=group_config
         )
+
+        # Used for testing get_configured_groups. Tunnels are only made active,
+        # or inactive by stubbing out 'is_tunnel_active' with a function that
+        # does name matching:
+        self.complex_config = Configuration(
+            common={'default_user': 'testuser'},
+            tunnels={
+                'active_tunnel1': {
+                    'user': self.tunnel.user,
+                    'server': self.tunnel.server,
+                    'local_port': self.tunnel.local_port,
+                    'remote_port': self.tunnel.remote_port,
+                },
+                'active_tunnel2': {
+                    'user': self.tunnel.user,
+                    'server': self.tunnel.server,
+                    'local_port': self.tunnel.local_port,
+                    'remote_port': self.tunnel.remote_port,
+                },
+                'inactive_tunnel1': {
+                    'user': self.tunnel.user,
+                    'server': self.tunnel.server,
+                    'local_port': self.tunnel.local_port,
+                    'remote_port': self.tunnel.remote_port,
+                },
+                'inactive_tunnel2': {
+                    'user': self.tunnel.user,
+                    'server': self.tunnel.server,
+                    'local_port': self.tunnel.local_port,
+                    'remote_port': self.tunnel.remote_port,
+                }
+            },
+            groups={
+                'all_active': [('active_tunnel1', None), ('active_tunnel2', None)],
+                'all_inactive': [('inactive_tunnel1', None), ('inactive_tunnel2', None)],
+                'mixed': [('active_tunnel1', None), ('inactive_tunnel1', None)],
+            }
+        )
+
         self.empty_config = Configuration({}, {}, {})
 
         self.tunneler = Tunneler(self.process_helper, self.empty_config)
+
+    def test_start_with_group(self):
+        self.tunneler.config = self.config
+        with patch.object(self.tunneler, '_start_group') as _start_group_stub:
+            self.tunneler.start(self.group_name)
+            _start_group_stub.assert_called_once_with(self.group_name)
+
+    def test_start_with_tunnel(self):
+        self.tunneler.config = self.config
+        with patch.object(self.tunneler, '_start_tunnel') as _start_tunnel_stub:
+            self.tunneler.start(self.tunnel_name)
+            _start_tunnel_stub.assert_called_once_with(self.tunnel_name)
+
+    def test_get_configured_groups(self):
+        self.tunneler.config = self.config
+        self.assertEqual([self.group_name], self.tunneler.get_configured_groups())
+
+    def test_get_configured_groups_active(self):
+        self.tunneler.config = self.complex_config
+
+        with patch.object(self.tunneler, 'is_tunnel_active', is_tunnel_active_stub):
+            self.assertEqual(
+                ['all_active'],
+                self.tunneler.get_configured_groups(True),
+            )
+
+    def test_get_configured_groups_inactive(self):
+        self.tunneler.config = self.complex_config
+
+        with patch.object(self.tunneler, 'is_tunnel_active', is_tunnel_active_stub):
+            self.assertEqual(
+                ['all_inactive'],
+                self.tunneler.get_configured_groups(False),
+            )
 
     def test_identify_tunnel_with_one_found(self):
         name = 'testserver'
@@ -149,7 +226,7 @@ class TunnelerTestCase(TestCase):
         )
 
         configured_tunnels = self.tunneler.get_configured_tunnels()
-        self.assertEqual(configured_tunnels, tunnel_config.keys())
+        self.assertEqual(set(configured_tunnels), set(tunnel_config.keys()))
 
     def test_get_configured_tunnels_with_filtering(self):
         tunnel_config = {'a': None, 'b': None}

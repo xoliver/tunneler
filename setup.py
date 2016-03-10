@@ -17,10 +17,25 @@ setup(
     install_requires=[
         'click',
         'colorama',
-        'psutil',
+        'psutil>=3.0.0',
     ],
     entry_points='''
         [console_scripts]
         tunneler=tunneler.main:cli
     ''',
+    classifiers=[
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: POSIX',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: System :: Networking',
+    ],
 )
