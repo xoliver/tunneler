@@ -1,6 +1,29 @@
 """
 Code to operate with tunnels and helpful functions.
 """
+try:
+    from queue import Queue
+except ImportError:
+    from Queue import Queue
+import threading
+
+
+def threaded(fn):
+    """
+    Wrapper which will cause the function to become threaded at a maximum of
+    20 in parallel.
+    The first parameter of the function be threaded should always be the queue
+    e.g. def func_to_thread(queue, some_param, ..)
+    :param function fn: function which requires to be threaded
+    """
+    def wrapper(*args, **kwargs):
+        for x in range(25):
+            t = threading.Thread(target=fn, args=args, kwargs=kwargs)
+            t.daemon = True
+            t.start()
+        # Second item in args is the queue
+        args[1].join()
+    return wrapper
 
 
 class ConfigNotFound(LookupError):
@@ -31,7 +54,8 @@ class Tunneler(object):
     Class to handle tunnel operations at a higher level.
     """
 
-    def __init__(self, process_helper, config, verbose=False, ssh_debug_level=0):
+    def __init__(
+            self, process_helper, config, verbose=False, ssh_debug_level=0):
         self.process_helper = process_helper
         self.config = config
         self.verbose = verbose
@@ -170,10 +194,30 @@ class Tunneler(object):
         """
         Launch specified group of tunnels.
 
-        Yield tuples (tunnel name, started port OR status/error).
+        Returns list of (tunnel name, started port OR status/error).
         """
-        for (tunnel_name, tunnel_port) in self.config.groups[name]:
-            yield self._start_tunnel(tunnel_name, tunnel_port)[0]
+        queue = Queue()
+        for tunnel_connection in self.config.groups[name]:
+            queue.put(tunnel_connection)
+
+        results = []
+        self._threaded_start_group(queue, results)
+        return results
+
+    @threaded
+    def _threaded_start_group(self, queue, results):
+        """
+        Launch tunnels in a group, threaded.
+
+        Adds results of actions in results.
+        """
+        while not queue.empty():
+            try:
+                tunnel_name, tunnel_port = queue.get()
+                result = self._start_tunnel(tunnel_name, tunnel_port)
+                results.append(result[0])
+            finally:
+                queue.task_done()
 
     def _start_tunnel(self, name, local_port_override=None):
         """
@@ -210,7 +254,8 @@ class Tunneler(object):
             return [
                 (
                     name,
-                    '{user}@{server} - local:{local} - host:{host} - remote:{remote}'.format(
+                    '{user}@{server} - local:{local} - host:{host} - '
+                    'remote:{remote}'.format(
                         user=user_name,
                         server=data['server'],
                         local=local_port,

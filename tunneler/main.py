@@ -23,7 +23,12 @@ DEFAULT_USER = 'nobody'
 
 @click.group()
 @click.option('--verbose', is_flag=True, help='Show verbose information')
-@click.option('--ssh-debug-level', default=0, type=int, help='Show ssh debug information')
+@click.option(
+    '--ssh-debug-level',
+    default=0,
+    type=int,
+    help='Show ssh debug information',
+)
 @click.version_option()
 def cli(verbose, ssh_debug_level):
     # Load configurations
@@ -112,7 +117,7 @@ def show(what):
 
 def start_call(name):
     try:
-        for (tunnel_name, result) in TUNNELER.start(name):
+        for tunnel_name, result in TUNNELER.start(name):
             if type(result) == int:
                 print(ok('{}:{}'.format(tunnel_name, result)))
             else:
